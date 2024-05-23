@@ -1,5 +1,5 @@
 from pathlib import Path
-
+import os
 from pydantic_settings import BaseSettings
 
 
@@ -19,9 +19,9 @@ class Settings(BaseSettings):
 
     DEBUG: bool = True
 
-    PROJECT_ROOT = Path(__file__).resolve().parent.parent
-    BASE_DIR = PROJECT_ROOT.parent
-    LOGS_ROOT = BASE_DIR / "app/logs"
+    PROJECT_ROOT: str = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+    BASE_DIR: str = os.path.abspath(os.path.join(PROJECT_ROOT, os.pardir))
+    LOGS_ROOT: str = os.path.join(BASE_DIR, "app/logs")
     SECRET_KEY: str = "015a42020f023ac2c3eda3d45fe5ca3fef8921ce63589f6d4fcdef9814cd7fa7"  # python -c "from passlib import pwd; print(pwd.genword(length=64, charset='hex'))"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 12  # 12 hours
