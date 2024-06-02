@@ -1,6 +1,6 @@
 const local: App.I18n.Schema = {
   system: {
-    title: 'Soybean 管理系统'
+    title: '智能诊断系统'
   },
   common: {
     action: '操作',
@@ -181,7 +181,18 @@ const local: App.I18n.Schema = {
     exception: '异常页',
     exception_403: '403',
     exception_404: '404',
-    exception_500: '500'
+    exception_500: '500',
+    equipment:'设备管理',
+    'equipment_power-plant': '电厂管理',
+    'equipment_equipment-tree': '设备树管理',
+    knowledge: '知识管理',
+    knowledge_generate: '知识生成',
+    knowledge_query: '知识查询',
+    knowledge_statistics: '知识统计',
+    'early-warning': '故障预警',
+    'early-warning_monitor': '实时监控',
+    'early-warning_identify': '故障识别',
+    'early-warning_learning': '基准值学习',
   },
   page: {
     login: {

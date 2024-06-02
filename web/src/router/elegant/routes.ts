@@ -51,6 +51,73 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'early-warning',
+    path: '/early-warning',
+    component: 'layout.base',
+    meta: {
+      title: 'early-warning',
+      i18nKey: 'route.early-warning'
+    },
+    children: [
+      {
+        name: 'early-warning_identify',
+        path: '/early-warning/identify',
+        component: 'view.early-warning_identify',
+        meta: {
+          title: 'early-warning_identify',
+          i18nKey: 'route.early-warning_identify'
+        }
+      },
+      {
+        name: 'early-warning_learning',
+        path: '/early-warning/learning',
+        component: 'view.early-warning_learning',
+        meta: {
+          title: 'early-warning_learning',
+          i18nKey: 'route.early-warning_learning'
+        }
+      },
+      {
+        name: 'early-warning_monitor',
+        path: '/early-warning/monitor',
+        component: 'view.early-warning_monitor',
+        meta: {
+          title: 'early-warning_monitor',
+          i18nKey: 'route.early-warning_monitor'
+        }
+      }
+    ]
+  },
+  {
+    name: 'equipment',
+    path: '/equipment',
+    component: 'layout.base',
+    meta: {
+      title: 'equipment',
+      i18nKey: 'route.equipment'
+    },
+    children: [
+      {
+        name: 'equipment_equipment-tree',
+        path: '/equipment/equipment-tree',
+        component: 'view.equipment_equipment-tree',
+        meta: {
+          title: 'equipment_equipment-tree',
+          i18nKey: 'route.equipment_equipment-tree'
+        }
+      },
+      {
+        name: 'equipment_power-plant',
+        path: '/equipment/power-plant',
+        component: 'view.equipment_power-plant',
+        meta: {
+          title: 'equipment_power-plant',
+          i18nKey: 'route.equipment_power-plant'
+        }
+      }
+    ]
+  },
+  {
     name: 'function',
     path: '/function',
     component: 'layout.base',
@@ -191,6 +258,44 @@ export const generatedRoutes: GeneratedRoute[] = [
       hideInMenu: true,
       keepAlive: true
     }
+  },
+  {
+    name: 'knowledge',
+    path: '/knowledge',
+    component: 'layout.base',
+    meta: {
+      title: 'knowledge',
+      i18nKey: 'route.knowledge'
+    },
+    children: [
+      {
+        name: 'knowledge_generate',
+        path: '/knowledge/generate',
+        component: 'view.knowledge_generate',
+        meta: {
+          title: 'knowledge_generate',
+          i18nKey: 'route.knowledge_generate'
+        }
+      },
+      {
+        name: 'knowledge_query',
+        path: '/knowledge/query',
+        component: 'view.knowledge_query',
+        meta: {
+          title: 'knowledge_query',
+          i18nKey: 'route.knowledge_query'
+        }
+      },
+      {
+        name: 'knowledge_statistics',
+        path: '/knowledge/statistics',
+        component: 'view.knowledge_statistics',
+        meta: {
+          title: 'knowledge_statistics',
+          i18nKey: 'route.knowledge_statistics'
+        }
+      }
+    ]
   },
   {
     name: 'login',

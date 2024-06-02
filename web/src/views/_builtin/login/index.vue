@@ -1,3 +1,11 @@
+<!--
+ * @Descripttion: 
+ * @version: 0.x
+ * @Author: zhai
+ * @Date: 2024-05-31 21:27:14
+ * @LastEditors: zhai
+ * @LastEditTime: 2024-06-01 14:19:23
+-->
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { Component } from 'vue';
@@ -65,12 +73,12 @@ const bgColor = computed(() => {
               class="text-20px lt-sm:text-18px"
               @switch="themeStore.toggleThemeScheme"
             />
-            <LangSwitch
+            <!-- <LangSwitch
               :lang="appStore.locale"
               :lang-options="appStore.localeOptions"
               :show-tooltip="false"
               @change-lang="appStore.changeLocale"
-            />
+            /> -->
           </div>
         </header>
         <main class="pt-24px">

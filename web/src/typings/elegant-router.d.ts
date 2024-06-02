@@ -33,6 +33,13 @@ declare module "@elegant-router/types" {
     "404": "/404";
     "500": "/500";
     "about": "/about";
+    "early-warning": "/early-warning";
+    "early-warning_identify": "/early-warning/identify";
+    "early-warning_learning": "/early-warning/learning";
+    "early-warning_monitor": "/early-warning/monitor";
+    "equipment": "/equipment";
+    "equipment_equipment-tree": "/equipment/equipment-tree";
+    "equipment_power-plant": "/equipment/power-plant";
     "function": "/function";
     "function_hide-child": "/function/hide-child";
     "function_hide-child_one": "/function/hide-child/one";
@@ -45,6 +52,10 @@ declare module "@elegant-router/types" {
     "function_toggle-auth": "/function/toggle-auth";
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
+    "knowledge": "/knowledge";
+    "knowledge_generate": "/knowledge/generate";
+    "knowledge_query": "/knowledge/query";
+    "knowledge_statistics": "/knowledge/statistics";
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
     "manage": "/manage";
     "manage_api": "/manage/api";
@@ -107,9 +118,12 @@ declare module "@elegant-router/types" {
     | "404"
     | "500"
     | "about"
+    | "early-warning"
+    | "equipment"
     | "function"
     | "home"
     | "iframe-page"
+    | "knowledge"
     | "login"
     | "manage"
     | "multi-menu"
@@ -138,6 +152,11 @@ declare module "@elegant-router/types" {
     | "iframe-page"
     | "login"
     | "about"
+    | "early-warning_identify"
+    | "early-warning_learning"
+    | "early-warning_monitor"
+    | "equipment_equipment-tree"
+    | "equipment_power-plant"
     | "function_hide-child_one"
     | "function_hide-child_three"
     | "function_hide-child_two"
@@ -147,6 +166,9 @@ declare module "@elegant-router/types" {
     | "function_tab"
     | "function_toggle-auth"
     | "home"
+    | "knowledge_generate"
+    | "knowledge_query"
+    | "knowledge_statistics"
     | "manage_api"
     | "manage_log"
     | "manage_menu"

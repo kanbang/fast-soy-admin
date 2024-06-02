@@ -1,3 +1,11 @@
+<!--
+ * @Descripttion: 
+ * @version: 0.x
+ * @Author: zhai
+ * @Date: 2024-05-31 21:27:14
+ * @LastEditors: zhai
+ * @LastEditTime: 2024-06-01 14:27:02
+-->
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useFullscreen } from '@vueuse/core';
@@ -57,7 +65,7 @@ const headerMenus = computed(() => {
     <div class="h-full flex-y-center justify-end">
       <GlobalSearch />
       <FullScreen v-if="!appStore.isMobile" :full="isFullscreen" @click="toggle" />
-      <LangSwitch :lang="appStore.locale" :lang-options="appStore.localeOptions" @change-lang="appStore.changeLocale" />
+      <!-- <LangSwitch :lang="appStore.locale" :lang-options="appStore.localeOptions" @change-lang="appStore.changeLocale" /> -->
       <ThemeSchemaSwitch
         :theme-schema="themeStore.themeScheme"
         :is-dark="themeStore.darkMode"
