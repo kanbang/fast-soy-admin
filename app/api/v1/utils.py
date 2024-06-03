@@ -22,6 +22,10 @@ async def refresh_api_list():
         method = list(route.methods)[0].lower()
         path = route.path_format
         summary = route.summary
+        
+        if summary is None:
+            summary = "" 
+
         tags = list(route.tags)
         await Api.update_or_create(path=path, method=method, defaults=dict(summary=summary, tags=tags))
         # api_obj = await Api.get_or_none(path=path, method=method)

@@ -4,6 +4,7 @@ import { setupDayjs, setupIconifyOffline, setupLoading, setupNProgress } from '.
 import { setupStore } from './store';
 import { setupRouter } from './router';
 import { setupI18n } from './locales';
+import { setupFastCrud } from './plugins';
 import App from './App.vue';
 
 async function setupApp() {
@@ -22,6 +23,8 @@ async function setupApp() {
   await setupRouter(app);
 
   setupI18n(app);
+
+  setupFastCrud(app);
 
   app.mount('#app');
 }
