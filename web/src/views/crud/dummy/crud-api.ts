@@ -47,42 +47,54 @@ export class CrudApi<T = object> {
 
     // Create One
     async create(data?: T) {
-        const res = await request.post(`/${this.prefix}/create`, data);
-        return this.resHandle(res);
+        return request<any, 'json'>({
+            url: `/${this.prefix}/create`,
+            method: 'post',
+            data
+        });
     }
 
 
     // Delete By Key
     async delete(key?: number) {
         let params = new URLSearchParams();
-        params.append('item_id', key);
+        params.append('item_id',  `${key}`);
         let str_params = params.toString();
         if (str_params.length > 0) {
             str_params = '?' + str_params;
         }
 
-        const res = await request.post(`/${this.prefix}/delete/${str_params}`);
-        return this.resHandle(res);
+        return request<any, 'json'>({
+            url: `/${this.prefix}/delete/${str_params}`,
+            method: 'post'
+        });
     }
 
 
     // Delete All
     async delete_all(data?: T) {
-        const res = await request.post(`/${this.prefix}/delete_all`, data);
-        return this.resHandle(res);
+        return request<any, 'json'>({
+            url: `/${this.prefix}/delete_all`,
+            method: 'post'
+        });
     }
 
     // Update One By Key
     async update(data?: T) {
-        const res = await request.post(`/${this.prefix}/update`, data);
-        return this.resHandle(res);
+        return request<any, 'json'>({
+            url: `/${this.prefix}/update`,
+            method: 'post',
+            data
+        });
     }
 
 
     // Get One By Filter Value
     async get_by_id(data?: number | string) {
-        const res = await request.post(`/${this.prefix}/get_by_id`, data);
-        return this.resHandle(res);
+        return request<any, 'json'>({
+            url: `/${this.prefix}/get_by_id?item_id=${data}`,
+            method: 'post'
+        });
     }
 
 
@@ -104,8 +116,11 @@ export class CrudApi<T = object> {
             str_params = '?' + str_params;
         }
 
-        const res = await request.post(`/${this.prefix}/get_one_by_filter${str_params}`, data);
-        return this.resHandle(res);
+        return request<any, 'json'>({
+            url: `/${this.prefix}/get_one_by_filter${str_params}`,
+            method: 'post',
+            data
+        });
     }
 
 
@@ -139,28 +154,39 @@ export class CrudApi<T = object> {
             str = '?' + str;
         }
 
-        const res = await request.post(`/${this.prefix}/list${str}`);
-        return this.resHandle(res);
+        return request<any, 'json'>({
+            url: `/${this.prefix}/list${str}`,
+            method: 'post'
+        });
     }
 
 
     // Query Many By Filter Value
     async query(data?: T) {
-        const res = await request.post(`/${this.prefix}/query`, data);
-        return this.resHandle(res);
+        return request<any, 'json'>({
+            url: `/${this.prefix}/query`,
+            method: 'post',
+            data
+        });
     }
 
 
     // Query Many By Filter Condition, [=, !=, >, <, >=, <=, like, in]
     async query_ex(data?: T) {
-        const res = await request.post(`/${this.prefix}/query_ex`, data);
-        return this.resHandle(res);
+        return request<any, 'json'>({
+            url: `/${this.prefix}/query_ex`,
+            method: 'post',
+            data
+        });
     }
 
 
     // Insert Or Update
     async upsert(data?: T) {
-        const res = await request.post(`/${this.prefix}/upsert`, data);
-        return this.resHandle(res);
+        return request<any, 'json'>({
+            url: `/${this.prefix}/upsert`,
+            method: 'post',
+            data
+        });
     }
 }

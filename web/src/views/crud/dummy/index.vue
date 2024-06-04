@@ -64,10 +64,19 @@ function createCrudOptions({crudExpose}: CreateCrudOptionsProps): CreateCrudOpti
             show: false
           }
         },
+        name: {
+          title: '姓名',
+          type: 'text',
+          search: { show: true },
+          column: {
+            sorter: 'custom',
+          }
+        },
         age: {
           title: '年龄',
           type: 'number',
           column: {
+            sorter: 'custom',
             width: 50
           },
           form: {
