@@ -1,45 +1,55 @@
-import { UserPageQuery } from '@fast-crud/fast-crud';
-import { request } from '@/service/request';
+import type { UserPageQuery } from '@fast-crud/fast-crud';
+import { mockRequest } from '@/service/request';
+import { CrudApi } from './crud-api';
 
-// import { mockRequest } from '@/service/request';
-// const request = mockRequest;
-
-const apiPrefix = '/crud/demo';
+const request = mockRequest;
+// const apiPrefix = '/crud/demo';
 
 export type DemoRecord = {
   id: number;
   [key: string]: any;
 };
 
-function resHandle(res: any) {
-  return res.data;
+
+
+export class DummyApi extends CrudApi {
+  constructor() {
+    super("dummy");
+  }
+
+  export_csv(id?: string) {
+    return request({
+      url: `/${this.prefix}/export_csv/${id}`,
+      method: 'GET',
+      responseType: "blob"
+    });
+  }
 }
+
+const dummy_api = new DummyApi();
+
+
 export async function GetList(query: UserPageQuery) {
-  const res = await request.post(`${apiPrefix}/page`, query);
-  return resHandle(res);
+  return await dummy_api.list();
 }
 
 export async function AddObj(obj: DemoRecord) {
-  const res = await request.post(`${apiPrefix}/add`, obj);
-  return resHandle(res);
+  return await dummy_api.create(obj);
 }
 
 export async function UpdateObj(obj: DemoRecord) {
-  const res = await request.post(`${apiPrefix}/update`, obj);
-  return resHandle(res);
+  return await dummy_api.update(obj);
 }
 
 export async function DelObj(id: number) {
-  const res = await request.post(`${apiPrefix}/delete`, { id });
-  return resHandle(res);
+  return await dummy_api.delete(id);
 }
 
 export async function GetObj(id: number) {
-  const res = await request.get(`${apiPrefix}/info`, { params: { id } });
-  return resHandle(res);
+  return await dummy_api.get_by_id(id);
 }
 
 export async function BatchDelete(ids: number[]) {
-  const res = await request.post(`${apiPrefix}/batchDelete`, { ids });
-  return resHandle(res);
+  // const res = await request.post(`${apiPrefix}/batchDelete`, { ids });
+  // return resHandle(res);
 }
