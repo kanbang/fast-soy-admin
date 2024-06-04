@@ -51,6 +51,35 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'crud',
+    path: '/crud',
+    component: 'layout.base',
+    meta: {
+      title: 'crud',
+      i18nKey: 'route.crud'
+    },
+    children: [
+      {
+        name: 'crud_demo',
+        path: '/crud/demo',
+        component: 'view.crud_demo',
+        meta: {
+          title: 'crud_demo',
+          i18nKey: 'route.crud_demo'
+        }
+      },
+      {
+        name: 'crud_dummy',
+        path: '/crud/dummy',
+        component: 'view.crud_dummy',
+        meta: {
+          title: 'crud_dummy',
+          i18nKey: 'route.crud_dummy'
+        }
+      }
+    ]
+  },
+  {
     name: 'early-warning',
     path: '/early-warning',
     component: 'layout.base',

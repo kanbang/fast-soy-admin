@@ -33,6 +33,9 @@ declare module "@elegant-router/types" {
     "404": "/404";
     "500": "/500";
     "about": "/about";
+    "crud": "/crud";
+    "crud_demo": "/crud/demo";
+    "crud_dummy": "/crud/dummy";
     "early-warning": "/early-warning";
     "early-warning_identify": "/early-warning/identify";
     "early-warning_learning": "/early-warning/learning";
@@ -118,6 +121,7 @@ declare module "@elegant-router/types" {
     | "404"
     | "500"
     | "about"
+    | "crud"
     | "early-warning"
     | "equipment"
     | "function"
@@ -152,6 +156,8 @@ declare module "@elegant-router/types" {
     | "iframe-page"
     | "login"
     | "about"
+    | "crud_demo"
+    | "crud_dummy"
     | "early-warning_identify"
     | "early-warning_learning"
     | "early-warning_monitor"
