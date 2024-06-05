@@ -74,7 +74,7 @@ class Settings(BaseSettings):
         },
         "apps": {
             # don't modify `app_system`, otherwise you will need to modify all `app_systems` in app/models/admin.py
-            "app_system": {"models": ["app.models.system", "app.models.dummy", "aerich.models"], "default_connection": "conn_system"},
+            "app_system": {"models": ["app.models.system", "app.models.ifd", "app.models.dummy", "aerich.models"], "default_connection": "conn_system"},
             # "app_book": {"models": ["app.models.book"], "default_connection": "conn_book"},
         },
         "use_tz": False,

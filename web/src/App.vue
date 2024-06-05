@@ -24,15 +24,13 @@ const naiveDateLocale = computed(() => {
 </script>
 
 <template>
-  <NConfigProvider
-    :theme="naiveDarkTheme"
-    :theme-overrides="themeStore.naiveTheme"
-    :locale="naiveLocale"
-    :date-locale="naiveDateLocale"
-    class="h-full"
-  >
+  <NConfigProvider :theme="naiveDarkTheme" :theme-overrides="themeStore.naiveTheme" :locale="naiveLocale"
+    :date-locale="naiveDateLocale" class="h-full">
     <AppProvider>
-      <RouterView class="bg-layout" />
+      <!--add by fs 用于给fast-crud安装naive-ui，让fs-crud拥有message notification dialog的能力-->
+      <fs-ui-context>
+        <RouterView class="bg-layout" />
+      </fs-ui-context>
     </AppProvider>
   </NConfigProvider>
 </template>

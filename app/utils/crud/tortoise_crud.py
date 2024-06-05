@@ -185,13 +185,17 @@ class TortoiseCRUDRouter(CRUDGenerator[SCHEMA]):
     def _get_all(self, *args: Any, **kwargs: Any) -> CALLABLE_LIST:
         async def route(pagination: PAGINATION = self.pagination) -> List[Model]:
             skip, limit = pagination.get("skip"), pagination.get("limit")
-            query = self.db_model.all().offset(cast(int, skip))
+
+            query = self.db_model.all()
+            total = await query.count()
+            
+            query = query.offset(cast(int, skip))
             if limit:
                 query = query.limit(limit)
             objs = await query
 
             return resp_success(
-                convert_to_pydantic(objs, self.schema)
+                convert_to_pydantic(objs, self.schema), total=total
             )
 
         return route

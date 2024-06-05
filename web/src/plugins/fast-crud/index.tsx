@@ -90,13 +90,17 @@ function install(app: App, options: FsSetupOpts = {}) {
           },
           // page请求结果转换
           transformRes: originPageRes => {
-            const { res } = originPageRes;
-            const pageSize = res.limit;
-            let currentPage = res.offset / pageSize;
-            if (res.offset % pageSize === 0) {
+            const { query, res } = originPageRes;
+
+            const pageSize = query.page.limit;
+            let currentPage = query.page.offset / pageSize;
+            if (query.page.offset % pageSize === 0) {
               currentPage += 1;
             }
-            return { currentPage, pageSize, ...res };
+            let total = res.data.meta.total;
+            let records = res.data.data;
+            
+            return { currentPage, pageSize, total, records, ...res };
           }
         },
         form: {
@@ -118,6 +122,7 @@ function install(app: App, options: FsSetupOpts = {}) {
   });
   app.use(FsExtendsJson);
   app.use(FsExtendsCopyable);
+  
   // 安装uploader 公共参数
   const uploaderOptions: FsUploaderOptions = {
     defaultType: 'form',

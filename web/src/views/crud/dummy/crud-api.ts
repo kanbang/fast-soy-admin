@@ -58,7 +58,7 @@ export class CrudApi<T = object> {
     // Delete By Key
     async delete(key?: number) {
         let params = new URLSearchParams();
-        params.append('item_id',  `${key}`);
+        params.append('item_id', `${key}`);
         let str_params = params.toString();
         if (str_params.length > 0) {
             str_params = '?' + str_params;
@@ -162,9 +162,13 @@ export class CrudApi<T = object> {
 
 
     // Query Many By Filter Value
-    async query(data?: T) {
+    async query(data?: T, params: string | null = null) {
+        if (params && params.length > 0) {
+            params = '?' + params;
+        }
+
         return request<any, 'json'>({
-            url: `/${this.prefix}/query`,
+            url: `/${this.prefix}/query${params}`,
             method: 'post',
             data
         });

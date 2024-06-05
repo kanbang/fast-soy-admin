@@ -5,14 +5,14 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
-import {CreateCrudOptionsProps, CreateCrudOptionsRet,   ValueBuilderContext, useFs} from "@fast-crud/fast-crud";
+import { onMounted, ref } from "vue";
+import { CreateCrudOptionsProps, CreateCrudOptionsRet, ValueBuilderContext, useFs } from "@fast-crud/fast-crud";
 import type { AddReq, DelReq, EditReq, UserPageQuery, UserPageRes } from '@fast-crud/fast-crud';
 import { dict } from '@fast-crud/fast-crud';
 import dayjs from 'dayjs';
 import * as api from './api';
 
-function createCrudOptions({crudExpose}: CreateCrudOptionsProps): CreateCrudOptionsRet {
+function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
   const pageRequest = async (query: UserPageQuery): Promise<UserPageRes> => {
     return api.GetList(query);
   };
@@ -211,7 +211,7 @@ function createCrudOptions({crudExpose}: CreateCrudOptionsProps): CreateCrudOpti
   };
 }
 
-const {crudRef, crudBinding, crudExpose} = useFs({createCrudOptions});
+const { crudRef, crudBinding, crudExpose } = useFs({ createCrudOptions });
 
 // 页面打开后获取列表数据
 onMounted(() => {
@@ -219,7 +219,3 @@ onMounted(() => {
 });
 
 </script>
-
-
-
-
