@@ -184,6 +184,7 @@ const local: App.I18n.Schema = {
     exception_500: '500',
     equipment:'设备管理',
     'equipment_power-plant': '电厂管理',
+    equipment_unit: '机组管理',
     'equipment_equipment-tree': '设备树管理',
     knowledge: '知识管理',
     knowledge_generate: '知识生成',

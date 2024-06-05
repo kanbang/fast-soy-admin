@@ -143,6 +143,15 @@ export const generatedRoutes: GeneratedRoute[] = [
           title: 'equipment_power-plant',
           i18nKey: 'route.equipment_power-plant'
         }
+      },
+      {
+        name: 'equipment_unit',
+        path: '/equipment/unit',
+        component: 'view.equipment_unit',
+        meta: {
+          title: 'equipment_unit',
+          i18nKey: 'route.equipment_unit'
+        }
       }
     ]
   },
@@ -274,6 +283,26 @@ export const generatedRoutes: GeneratedRoute[] = [
       icon: 'mdi:monitor-dashboard',
       order: 1
     }
+  },
+  {
+    name: 'ifd',
+    path: '/ifd',
+    component: 'layout.base',
+    meta: {
+      title: 'ifd',
+      i18nKey: 'route.ifd'
+    },
+    children: [
+      {
+        name: 'ifd_unit',
+        path: '/ifd/unit',
+        component: 'view.ifd_unit',
+        meta: {
+          title: 'ifd_unit',
+          i18nKey: 'route.ifd_unit'
+        }
+      }
+    ]
   },
   {
     name: 'iframe-page',
