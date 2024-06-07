@@ -44,6 +44,9 @@ importers:
       '@sa/utils':
         specifier: workspace:*
         version: link:packages/utils
+      '@skit/x.naive-ui':
+        specifier: ^0.17.1
+        version: 0.17.1(naive-ui@2.38.2)(vue@3.4.26)
       '@vueuse/core':
         specifier: 10.9.0
         version: 10.9.0(vue@3.4.26)
@@ -2247,6 +2250,17 @@ packages:
     engines: {node: '>=14.16'}
     dev: true
 
+  /@skit/x.naive-ui@0.17.1(naive-ui@2.38.2)(vue@3.4.26):
+    resolution: {integrity: sha512-Fn8N9qpxw5twJWHVuqZcbMrdSSENLpPfS7M2uth2an4NXLaYpdaoszK3sNdnK0rV1ExAYgCF+bJ92YN+yW0RIw==}
+    engines: {node: '>=18.12', npm: '>=8', pnpm: '>=8'}
+    peerDependencies:
+      naive-ui: ^2.37.0
+      vue: ^3.2.0
+    dependencies:
+      naive-ui: 2.38.2(vue@3.4.26)
+      vue: 3.4.26(typescript@5.4.5)
+    dev: false
+
   /@smithy/abort-controller@3.0.0:
     resolution: {integrity: sha512-p6GlFGBt9K4MYLu72YuJ523NVR4A8oHlC5M2JO6OmQqN8kAc/uh1JqLE+FizTokrSJGg0CSvC+BrsmGzKtsZKA==}
     engines: {node: '>=16.0.0'}
@@ -3055,7 +3069,7 @@ packages:
       graphemer: 1.4.0
       ignore: 5.3.1
       natural-compare: 1.4.0
-      semver: 7.6.0
+      semver: 7.6.2
       ts-api-utils: 1.3.0(typescript@5.4.5)
       typescript: 5.4.5
     transitivePeerDependencies:

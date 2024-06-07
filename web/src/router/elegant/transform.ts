@@ -169,6 +169,7 @@ const routeMap: RouteMap = {
   "equipment": "/equipment",
   "equipment_equipment-tree": "/equipment/equipment-tree",
   "equipment_power-plant": "/equipment/power-plant",
+  "equipment_unit": "/equipment/unit",
   "function": "/function",
   "function_hide-child": "/function/hide-child",
   "function_hide-child_one": "/function/hide-child/one",

@@ -1,6 +1,6 @@
+from enum import Enum
 from tortoise import fields
 from app.models.base import KBaseModel
-
 
 class UnitModel(KBaseModel):
     """记录表"""
@@ -31,6 +31,56 @@ class UnitModel(KBaseModel):
         table = "unit"
 
 
-__all__ = ["UnitModel"]
+class Equipment(KBaseModel):
+    id = fields.IntField(pk=True, description="ID")
+    name = fields.CharField(max_length=100, description="名称")
+    type = fields.IntField(default=0, description="类型")
+    parent_id = fields.IntField(default=0, max_length=10, description="父菜单ID")
+    mfpts = fields.ManyToManyField("app_system.MFPT", related_name="equipments")
+    mfsts = fields.ManyToManyField("app_system.MFST", related_name="equipments")
+
+    class Meta:
+        table = "equipment"
+
+# 机器故障现象类型 MFP (Machine Fault Phenomena Type)
+class MFPT(KBaseModel):
+    id = fields.IntField(pk=True, description="ID")
+    name = fields.CharField(max_length=100, description="名称")
+    desc = fields.CharField(max_length=200, description="描述")
+
+    class Meta:
+        table = "mfpt"
+
+# 机器故障现象 MFP (Machine Fault Phenomena)
+class MFP(KBaseModel):
+    id = fields.IntField(pk=True, description="ID")
+    name = fields.CharField(max_length=100, description="名称")    
+    type = fields.ForeignKeyField("app_system.MFPT", related_name="mfps")
+    desc = fields.CharField(max_length=200, description="描述")
+
+    class Meta:
+        table = "mfp"
+
+# 机器故障征兆类型 MFST (Machine Fault Symptoms Type) 
+class MFST(KBaseModel):
+    id = fields.IntField(pk=True, description="ID")
+    name = fields.CharField(max_length=100, description="名称")
+    desc = fields.CharField(max_length=200, description="描述")
+
+    class Meta:
+        table = "mfst"
+
+# 机器故障征兆 MFS (Machine Fault Symptoms) 
+class MFS(KBaseModel):
+    id = fields.IntField(pk=True, description="ID")
+    name = fields.CharField(max_length=100, description="名称")
+    type = fields.ForeignKeyField("app_system.MFST", related_name="mfss")
+    desc = fields.CharField(max_length=200, description="描述")
+
+    class Meta:
+        table = "mfs"
+
+
+__all__ = ["UnitModel", "Equipment", "MFPT", "MFP", "MFST", "MFS"]
 
 

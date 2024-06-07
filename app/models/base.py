@@ -18,3 +18,5 @@ class KBaseModel(Model):
         table_args = {
             "charset": "utf8"
         }
+
+    

@@ -41,7 +41,7 @@ def model_to_dict_no_relation(model: Model):
     return non_relation_fields
 
 
-def model_to_dict_relation(model, seen=None):
+async def model_to_dict_relation(model, seen=None):
     if seen is None:
         seen = set()
 
@@ -49,6 +49,21 @@ def model_to_dict_relation(model, seen=None):
         return None
 
     seen.add(model)
+
+    result = {}
+
+    for field_name, field in model._meta.fields_map.items():
+        if isinstance(field, (fields.relational.ForeignKeyFieldInstance, fields.relational.BackwardFKRelation, fields.relational.ManyToManyFieldInstance)):
+            await model.fetch_related(field_name)
+            result[field_name] = await model_to_dict_relation(getattr(model, field_name), seen)
+        else:
+            result[field_name] = getattr(model, field_name)
+
+    return result      
+        
+
+    # await page.fetch_related('book')
+    # book = page.book
 
     result = {
         column.name: getattr(model, column.name) for column in model.__table__.columns
@@ -73,7 +88,7 @@ def model_to_dict_relation(model, seen=None):
 
     return result
 
-def convert_to_pydantic(
+async def convert_to_pydantic(
     data: Union[dict, ModelType, List[ModelType]],
     pydantic_model: Type[PydanticType],
     relationships: bool = False,
@@ -84,12 +99,12 @@ def convert_to_pydantic(
         return pydantic_model.model_validate(data).model_dump()
     elif isinstance(data, list):
         return [
-            convert_to_pydantic(item, pydantic_model, relationships) for item in data
+            await convert_to_pydantic(item, pydantic_model, relationships) for item in data
         ]
     elif isinstance(data, Model):
         if relationships:
             return pydantic_model.model_validate(
-                model_to_dict_relation(data),
+                await model_to_dict_relation(data),
             ).model_dump()
         else:
             return pydantic_model.model_validate(
@@ -195,7 +210,7 @@ class TortoiseCRUDRouter(CRUDGenerator[SCHEMA]):
             objs = await query
 
             return resp_success(
-                convert_to_pydantic(objs, self.schema), total=total
+                await convert_to_pydantic(objs, self.schema), total=total
             )
 
         return route
@@ -204,7 +219,7 @@ class TortoiseCRUDRouter(CRUDGenerator[SCHEMA]):
         async def route(item_id: int) -> Model:
             obj = await self.db_model.get(**{self._pk: item_id})
             if obj:
-                return resp_success(convert_to_pydantic(obj, self.schema))
+                return resp_success(await convert_to_pydantic(obj, self.schema))
             else:
                 raise NOT_FOUND
 
@@ -213,7 +228,7 @@ class TortoiseCRUDRouter(CRUDGenerator[SCHEMA]):
     def _create(self, *args: Any, **kwargs: Any) -> CALLABLE:
         async def route(model: self.create_schema, request: Request) -> Model:  # type: ignore
             obj = await self.__create_obj_with_model(model, request, exclude={self._pk})
-            return resp_success(convert_to_pydantic(obj, self.schema))
+            return resp_success(await convert_to_pydantic(obj, self.schema))
 
         return route
 
@@ -250,7 +265,7 @@ class TortoiseCRUDRouter(CRUDGenerator[SCHEMA]):
             request: Request,
         ) -> RespModelT[Optional[self.schema]]:
             obj = await self.__create_obj_with_model(model, request, exclude={self._pk})
-            return resp_success(convert_to_pydantic(obj, self.schema))
+            return resp_success(await convert_to_pydantic(obj, self.schema))
 
         return route
     
@@ -295,7 +310,7 @@ class TortoiseCRUDRouter(CRUDGenerator[SCHEMA]):
 
             if obj:
                 await self.__update_obj_with_model(obj, model, request)
-                return resp_success(convert_to_pydantic(obj, self.schema))
+                return resp_success(await convert_to_pydantic(obj, self.schema))
             else:
                 raise ValueError("id不存在!")
 
@@ -330,7 +345,7 @@ class TortoiseCRUDRouter(CRUDGenerator[SCHEMA]):
             obj = await query.first()
 
             if obj:
-                return resp_success( convert_to_pydantic(obj, self.schema, relationships) )
+                return resp_success( await convert_to_pydantic(obj, self.schema, relationships) )
             else:
                 raise NOT_FOUND
 
@@ -338,9 +353,9 @@ class TortoiseCRUDRouter(CRUDGenerator[SCHEMA]):
 
     # 自动加载选项函数
     def __autoload_options(self, query: QuerySet) -> QuerySet:
-        for field in self.db_model._meta.fields_map.values():
-            if field.__class__.__name__ in ["BackwardFKRelation", "ForeignKeyField", "ManyToManyField"]:
-                query = query.prefetch_related(field.name)
+        # for field in self.db_model._meta.fields_map.values():
+        #     if field.__class__.__name__ in ["BackwardFKRelation", "ForeignKeyField", "ManyToManyField"]:
+        #         query = query.prefetch_related(field.name)
         return query
 
     # list
@@ -381,7 +396,7 @@ class TortoiseCRUDRouter(CRUDGenerator[SCHEMA]):
             objs = await query
 
             return resp_success(
-                convert_to_pydantic(objs, self.schema, relationships), total=total
+                await convert_to_pydantic(objs, self.schema, relationships), total=total
             )
 
         return route
@@ -430,7 +445,7 @@ class TortoiseCRUDRouter(CRUDGenerator[SCHEMA]):
             objs = await query
 
             return resp_success(
-                convert_to_pydantic(objs, self.schema, relationships), total=total
+                await convert_to_pydantic(objs, self.schema, relationships), total=total
             )
 
         return route
@@ -479,7 +494,7 @@ class TortoiseCRUDRouter(CRUDGenerator[SCHEMA]):
                 objs = await sql_query
 
                 return resp_success(
-                    convert_to_pydantic(objs, self.schema, relationships), total=total
+                    await convert_to_pydantic(objs, self.schema, relationships), total=total
                 )
 
             except Exception:
@@ -502,10 +517,10 @@ class TortoiseCRUDRouter(CRUDGenerator[SCHEMA]):
                 obj = await self.db_model.filter(**{self._pk: item_id}).first()
                 if obj:
                     await self.__update_obj_with_model(obj, model, request)
-                    return resp_success(convert_to_pydantic(obj, self.schema), msg="update")
+                    return resp_success(await convert_to_pydantic(obj, self.schema), msg="update")
 
             obj = await self.__create_obj_with_model(model, request, exclude=None)
-            return resp_success(convert_to_pydantic(obj, self.schema), msg="created")
+            return resp_success(await convert_to_pydantic(obj, self.schema), msg="created")
                    
             # model_dict = model.model_dump(exclude={self._pk}, exclude_none=True)
             # params = await self.handle_data(model_dict, True, request)

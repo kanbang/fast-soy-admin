@@ -40,6 +40,9 @@
  环境湿度 | Ambient Humidity | 机组运行环境的湿度 
  排放物监测 | Emission Monitoring | 对机组排放物的监测数据和标准 
  安全防护措施 | Safety Protective Measures | 保障机组安全运行所采取的措施和策略
+ 机器故障现象 | MFP (Machine Fault Phenomena) | 保障机组安全运行所采取的措施和策略
+ 机器故障征兆 | MFS (Machine Fault Symptoms)  | 保障机组安全运行所采取的措施和策略
+
 
 
 
