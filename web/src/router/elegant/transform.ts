@@ -181,6 +181,8 @@ const routeMap: RouteMap = {
   "function_tab": "/function/tab",
   "function_toggle-auth": "/function/toggle-auth",
   "home": "/home",
+  "ifd": "/ifd",
+  "ifd_unit": "/ifd/unit",
   "iframe-page": "/iframe-page/:url",
   "knowledge": "/knowledge",
   "knowledge_generate": "/knowledge/generate",

@@ -285,6 +285,26 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'ifd',
+    path: '/ifd',
+    component: 'layout.base',
+    meta: {
+      title: 'ifd',
+      i18nKey: 'route.ifd'
+    },
+    children: [
+      {
+        name: 'ifd_unit',
+        path: '/ifd/unit',
+        component: 'view.ifd_unit',
+        meta: {
+          title: 'ifd_unit',
+          i18nKey: 'route.ifd_unit'
+        }
+      }
+    ]
+  },
+  {
     name: 'iframe-page',
     path: '/iframe-page/:url',
     component: 'layout.base$view.iframe-page',

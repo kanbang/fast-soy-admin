@@ -4,7 +4,7 @@ version: 0.x
 Author: zhai
 Date: 2024-05-31 21:27:14
 LastEditors: zhai
-LastEditTime: 2024-06-03 21:48:46
+LastEditTime: 2024-06-08 23:00:31
 '''
 from fastapi import APIRouter
 
@@ -13,7 +13,7 @@ from .route import router_route
 from .system_manage import router_system_manage
 from .dummy.views import router as dummy_router
 from .unit.views import router as unit_router
-from .mfs.views import mfs_router, mfst_router
+from .mfs.views import mfs_router, mfst_router, equipment_router
 
 v1_router = APIRouter()
 
@@ -24,4 +24,5 @@ v1_router.include_router(dummy_router)
 v1_router.include_router(unit_router)
 v1_router.include_router(mfst_router)
 v1_router.include_router(mfs_router)
+v1_router.include_router(equipment_router)
 

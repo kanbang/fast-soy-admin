@@ -48,3 +48,18 @@ class MfsDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class EquipmentCreateDTO(BaseModel):
+    name: str
+    type: Optional[int] = None
+    parent_id: Optional[int] = None
+    mfpts_refids: Optional[List[int]] = None
+    mfsts_refids: Optional[List[int]] = None
+
+
+class EquipmentDTO(BaseModel):
+    id: Optional[int] = None
+    name: Optional[str] = None
+    type: Optional[int] = None
+    parent_id: Optional[int] = None
+    mfpts_refids: Optional[List[int]] = None
+    mfsts_refids: Optional[List[int]] = None

@@ -1,3 +1,19 @@
+'''
+Descripttion: 
+version: 0.x
+Author: zhai
+Date: 2024-06-07 19:45:51
+LastEditors: zhai
+LastEditTime: 2024-06-08 22:58:01
+'''
+'''
+Descripttion: 
+version: 0.x
+Author: zhai
+Date: 2024-06-07 19:45:51
+LastEditors: zhai
+LastEditTime: 2024-06-08 20:30:52
+'''
 from enum import Enum
 from tortoise import fields
 from app.models.base import KBaseModel
@@ -55,7 +71,7 @@ class MFPT(KBaseModel):
 class MFP(KBaseModel):
     id = fields.IntField(pk=True, description="ID")
     name = fields.CharField(max_length=100, description="名称")    
-    type = fields.ForeignKeyField("app_system.MFPT", related_name="mfps")
+    type = fields.ForeignKeyField("app_system.MFPT", related_name="mfps", null=True)
     desc = fields.CharField(max_length=200, description="描述")
 
     class Meta:
@@ -74,7 +90,7 @@ class MFST(KBaseModel):
 class MFS(KBaseModel):
     id = fields.IntField(pk=True, description="ID")
     name = fields.CharField(max_length=100, description="名称")
-    type = fields.ForeignKeyField("app_system.MFST", related_name="mfss")
+    type = fields.ForeignKeyField("app_system.MFST", related_name="mfss", null=True)
     desc = fields.CharField(max_length=200, description="描述")
 
     class Meta:
