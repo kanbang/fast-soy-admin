@@ -1,6 +1,6 @@
 import type { UserPageQuery } from '@fast-crud/fast-crud';
 import { mockRequest } from '@/service/request';
-import { CrudApi } from '@/service/crud-api';
+import { CrudApi } from './crud-api';
 
 const request = mockRequest;
 // const apiPrefix = '/crud/demo';
@@ -12,9 +12,9 @@ export type DemoRecord = {
 
 
 
-export class UnitApi extends CrudApi<UnitApi> {
+export class DummyApi extends CrudApi {
   constructor() {
-    super("unit");
+    super("dummy");
   }
 
   export_csv(id?: string) {
@@ -26,7 +26,7 @@ export class UnitApi extends CrudApi<UnitApi> {
   }
 }
 
-const api =  UnitApi.instance();
+const dummy_api = new DummyApi();
 
 type AnyObject = { [key: string]: any };
 
@@ -76,23 +76,23 @@ export async function GetList(query: UserPageQuery) {
 
   let str = params.toString();
 
-  return await api.query(removeEmptyValues(query.query), str);
+  return await dummy_api.query(removeEmptyValues(query.query), str);
 }
 
 export async function AddObj(obj: DemoRecord) {
-  return await api.create(obj);
+  return await dummy_api.create(obj);
 }
 
 export async function UpdateObj(obj: DemoRecord) {
-  return await api.update(obj);
+  return await dummy_api.update(obj);
 }
 
 export async function DelObj(id: number) {
-  return await api.delete(id);
+  return await dummy_api.delete(id);
 }
 
 export async function GetObj(id: number) {
-  return await api.get_by_id(id);
+  return await dummy_api.get_by_id(id);
 }
 
 export async function BatchDelete(ids: number[]) {

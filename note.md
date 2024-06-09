@@ -53,3 +53,7 @@
 - https://icones.js.org/
 - https://github.com/fast-crud/fast-crud
 - https://github.com/mizhexiaoxiao/vue-fastapi-admin
+
+<!-- 独立使用表单 -->
+- http://fast-crud.docmirror.cn/naive/#/crud/form/independent
+- https://github.com/fast-crud/fs-admin-naive-ui/blob/main/src/views/crud/form/independent/index.vue

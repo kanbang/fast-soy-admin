@@ -10,25 +10,25 @@ import { CreateCrudOptionsProps, CreateCrudOptionsRet, ValueBuilderContext, useF
 import type { AddReq, DelReq, EditReq, UserPageQuery, UserPageRes } from '@fast-crud/fast-crud';
 import { dict } from '@fast-crud/fast-crud';
 import dayjs from 'dayjs';
-import { fast_dummy_api } from './api';
+import * as api from './api';
 
 function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
   const pageRequest = async (query: UserPageQuery): Promise<UserPageRes> => {
-    return fast_dummy_api.GetList(query);
+    return api.GetList(query);
   };
   const editRequest = async (ctx: EditReq) => {
     const { form, row } = ctx;
     form.id = row.id;
-    return fast_dummy_api.UpdateObj(form);
+    return api.UpdateObj(form);
   };
   const delRequest = async (ctx: DelReq) => {
     const { row } = ctx;
-    return fast_dummy_api.DelObj(row.id);
+    return api.DelObj(row.id);
   };
 
   const addRequest = async (req: AddReq) => {
     const { form } = req;
-    return fast_dummy_api.AddObj(form);
+    return api.AddObj(form);
   };
 
 

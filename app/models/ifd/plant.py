@@ -4,16 +4,9 @@ version: 0.x
 Author: zhai
 Date: 2024-06-07 19:45:51
 LastEditors: zhai
-LastEditTime: 2024-06-08 22:58:01
+LastEditTime: 2024-06-09 09:17:16
 '''
-'''
-Descripttion: 
-version: 0.x
-Author: zhai
-Date: 2024-06-07 19:45:51
-LastEditors: zhai
-LastEditTime: 2024-06-08 20:30:52
-'''
+
 from enum import Enum
 from tortoise import fields
 from app.models.base import KBaseModel

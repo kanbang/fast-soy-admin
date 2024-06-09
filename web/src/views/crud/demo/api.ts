@@ -1,6 +1,6 @@
 import type { UserPageQuery } from '@fast-crud/fast-crud';
 import { mockRequest } from '@/service/request';
-import { CrudApi } from './crud-api';
+import { CrudApi } from '@/service/crud-api';
 
 const request = mockRequest;
 // const apiPrefix = '/crud/demo';
@@ -12,7 +12,7 @@ export type DemoRecord = {
 
 
 
-export class DummyApi extends CrudApi {
+export class DummyApi extends CrudApi<DummyApi> {
   constructor() {
     super("dummy");
   }
@@ -26,7 +26,7 @@ export class DummyApi extends CrudApi {
   }
 }
 
-const dummy_api = new DummyApi();
+const dummy_api = DummyApi.instance();
 
 
 export async function GetList(query: UserPageQuery) {

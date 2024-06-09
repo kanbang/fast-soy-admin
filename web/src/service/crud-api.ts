@@ -1,43 +1,27 @@
 
 import { request } from '@/service/request';
 
-/**
- * 用户接口
- * @method getUserList 获取用户列表
- * @method allMenu 获取菜单接口，平铺
- * @method upsertMenu 更新保存菜单
- */
 
 
-// https://stackoverflow.com/questions/41089854/typescript-access-static-attribute-of-generic-type
+export class Singleton<T> {
+    private static __instances: Map<string, any> = new Map();
 
-// class GenericClass<STR> {
-//   s: string = STR.str;
-// }
-
-// class SS {
-//   static str: string = "test";
-// }
-
-// class ChildClass extends GenericClass<SS> {
-//   logstr() {
-//     console.log(this.s);
-//   }
-// }
+    static instance<T>(this: new (...args: any[]) => T, ...args: any[]): T {
+        const className = this.name;
+        if (!Singleton.__instances.has(className)) {
+            Singleton.__instances.set(className, new this(...args));
+        }
+        
+        return Singleton.__instances.get(className);
+    }
+}
 
 
-// export class FormSchemaApi extends CrudApi<FormSchemaApi> {
-//   static __prefix: string = "form_schema";
-// }
-
-
-// new ChildClass().logstr()
-
-
-export class CrudApi<T = object> {
+export class CrudApi<CLS, T = object> extends Singleton<CLS> {
     prefix: string;
 
-    constructor(prefix: string) {
+    protected constructor(prefix: string) {
+        super();
         this.prefix = prefix;
     }
 
@@ -53,7 +37,6 @@ export class CrudApi<T = object> {
             data
         });
     }
-
 
     // Delete By Key
     async delete(key?: number) {
@@ -184,7 +167,6 @@ export class CrudApi<T = object> {
         });
     }
 
-
     // Insert Or Update
     async upsert(data?: T) {
         return request<any, 'json'>({
@@ -194,3 +176,28 @@ export class CrudApi<T = object> {
         });
     }
 }
+
+
+// https://stackoverflow.com/questions/41089854/typescript-access-static-attribute-of-generic-type
+
+// class GenericClass<STR> {
+//   s: string = STR.str;
+// }
+
+// class SS {
+//   static str: string = "test";
+// }
+
+// class ChildClass extends GenericClass<SS> {
+//   logstr() {
+//     console.log(this.s);
+//   }
+// }
+
+
+// export class FormSchemaApi extends CrudApi<FormSchemaApi> {
+//   static __prefix: string = "form_schema";
+// }
+
+
+// new ChildClass().logstr()

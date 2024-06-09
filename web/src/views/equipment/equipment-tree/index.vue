@@ -1,41 +1,28 @@
 <template>
-    <div>
+    <div class="h-full flex flex-col" >
         <div class="n-layout-page-header">
-            <n-card :bordered="false" title="菜单权限管理">
-                页面数据为 Mock 示例数据，非真实数据。
+            <n-card :bordered="false" title="设备树管理">
+                <!-- 页面数据为 Mock 示例数据，非真实数据。 -->
             </n-card>
         </div>
-        <n-grid class="mt-4" cols="1 s:1 m:1 l:3 xl:3 2xl:3" responsive="screen" :x-gap="12">
+        <n-grid class="mt-4 flex-grow" cols="1 s:1 m:1 l:3 xl:3 2xl:3" responsive="screen" :x-gap="12">
             <n-gi span="1">
-                <n-card :segmented="{ content: true }" :bordered="false" size="small">
+                <n-card class="h-full" :segmented="{ content: true }" :bordered="false" size="small">
                     <template #header>
                         <n-space>
-                            <n-dropdown trigger="hover" @select="selectAddMenu" :options="addMenuOptions">
-                                <n-button type="info" ghost icon-placement="right">
-                                    添加菜单
-                                    <template #icon>
-                                        <div class="flex items-center">
-                                            <n-icon size="14">
-                                                <DownOutlined />
-                                            </n-icon>
-                                        </div>
-                                    </template>
-                                </n-button>
-                            </n-dropdown>
-                            <n-button type="info" ghost icon-placement="left" @click="packHandle">
-                                全部{{ expandedKeys.length ? '收起' : '展开' }}
+                            <n-button type="info" ghost icon-placement="left" @click="addRoot">
+                                添加根节点
                                 <template #icon>
-                                    <div class="flex items-center">
-                                        <n-icon size="14">
-                                            <AlignLeftOutlined />
-                                        </n-icon>
+                                    <div>
+                                        <icon-pajamas-file-tree />
+                                        <!-- <icon-mdi-emoticon class="text-24px text-red" /> -->
                                     </div>
                                 </template>
                             </n-button>
                         </n-space>
                     </template>
-                    <div class="w-full menu">
-                        <n-input type="input" v-model:value="pattern" placeholder="输入菜单名称搜索">
+                    <div class="h-full w-full menu">
+                        <n-input v-model:value="pattern" placeholder="输入设备名称搜索">
                             <template #suffix>
                                 <n-icon size="18" class="cursor-pointer">
                                     <SearchOutlined />
@@ -49,16 +36,22 @@
                                 </div>
                             </template>
                             <template v-else>
-                                <x-n-tree block-line cascade :virtual-scroll="true" :pattern="pattern" :data="treeData" key-field="id"
-                                    :expandedKeys="expandedKeys" style="max-height: 650px; overflow: hidden"
+                                <x-n-tree block-line show-line :draggable="false" :show-irrelevant-nodes="false"
+                                    :virtual-scroll="true" :pattern="pattern" :data="treeData" key-field="id" label-field="name"
+                                    :expandedKeys="expandedKeys" style="max-height: 350px; overflow: hidden"
                                     @update:selected-keys="selectedTree" @update:expanded-keys="onExpandedKeys">
 
                                     <template #render-label="{ option }">
                                         <span class="custom-tree-node">
-                                            <span>{{ option.label }}</span>
+                                            <span>{{ option.name }}</span>
                                             <span>
-                                                <n-button @click="addChildNode(option)" ghost size="small" type="info">
+                                                <n-button @click="addChildNode(option)" ghost size="small"
+                                                    type="primary">
                                                     添加子节点
+                                                </n-button>
+                                                <n-button @click="editNode(option)" ghost size="small" type="info"
+                                                    style="margin-left: 8px">
+                                                    编辑
                                                 </n-button>
                                                 <n-button @click="delNode(option)" ghost size="small" type="error"
                                                     style="margin-left: 8px">
@@ -132,6 +125,10 @@ import { useDialog, useMessage } from 'naive-ui';
 // import { getTreeItem } from '@/utils';
 import CreateDrawer from './CreateDrawer.vue';
 import { XNTree } from '@skit/x.naive-ui';
+import { useColumns, useFormWrapper } from '@fast-crud/fast-crud';
+import { equipment_api, fast_equipment_api } from './api'
+
+const { openDialog } = useFormWrapper();
 
 const rules = {
     label: {
@@ -164,22 +161,63 @@ const treeItemTitle = ref('');
 const pattern = ref('');
 const drawerTitle = ref('');
 
+
 const isAddSon = computed(() => {
     return !treeItemKey.value.length;
 });
 
-const addMenuOptions = ref([
-    {
-        label: '添加顶级菜单',
-        key: 'home',
-        disabled: false,
-    },
-    {
-        label: '添加子菜单',
-        key: 'son',
-        disabled: isAddSon,
-    },
-]);
+function createTreeFormOptions(message: any) {
+    const { buildFormOptions } = useColumns();
+    return buildFormOptions({
+        columns: {
+            name: {
+                title: '名称',
+                form: {
+                    component: {
+                        name: 'n-input',
+                        vModel: 'value',
+                        allowClear: true,
+                    },
+                    rules: [{ required: true, message: '此项必填' }],
+                },
+            },
+            type: {
+                title: '类型',
+                form: {
+                    component: {
+                        name: 'n-input',
+                        vModel: 'value',
+                        allowClear: true,
+                    },
+                    rules: [{ required: true, message: '此项必填' }],
+                },
+            },
+        },
+        form: {
+            wrapper: {
+                title: '设备',
+            },
+            labelCol: { span: 6 },
+            async doSubmit({ form }) {
+                if ("id" in form) {
+                    let ret = await fast_equipment_api.UpdateObj(form);
+                    if (!ret.error) {
+                        message.success('更新成功');
+                        await refreshTree();
+                    }
+                }
+                else {
+                    let ret = await fast_equipment_api.AddObj(form);
+                    if (!ret.error) {
+                        message.success('添加成功');
+                        await refreshTree();
+                    }
+                }
+            },
+        },
+    });
+}
+
 
 const formParams = reactive({
     type: 1,
@@ -191,83 +229,71 @@ const formParams = reactive({
 });
 
 
-const mlist: any[] = [
-    {
-        label: 'Dashboard',
-        key: 'dashboard',
-        type: 1,
-        subtitle: 'dashboard',
-        openType: 1,
-        auth: 'dashboard',
-        path: '/dashboard',
-        children: [
-            {
-                label: '主控台',
-                key: 'console',
-                type: 1,
-                subtitle: 'console',
-                openType: 1,
-                auth: 'console',
-                path: '/dashboard/console',
-            },
-            {
-                label: '工作台',
-                key: 'workplace',
-                type: 1,
-                subtitle: 'workplace',
-                openType: 1,
-                auth: 'workplace',
-                path: '/dashboard/workplace',
-            },
-        ],
-    },
-    {
-        label: '表单管理',
-        key: 'form',
-        type: 1,
-        subtitle: 'form',
-        openType: 1,
-        auth: 'form',
-        path: '/form',
-        children: [
-            {
-                label: '基础表单',
-                key: 'basic-form',
-                type: 1,
-                subtitle: 'basic-form',
-                openType: 1,
-                auth: 'basic-form',
-                path: '/form/basic-form',
-            },
-            {
-                label: '分步表单',
-                key: 'step-form',
-                type: 1,
-                subtitle: 'step-form',
-                openType: 1,
-                auth: 'step-form',
-                path: '/form/step-form',
-            },
-            {
-                label: '表单详情',
-                key: 'detail',
-                type: 1,
-                subtitle: 'detail',
-                openType: 1,
-                auth: 'detail',
-                path: '/form/detail',
-            },
-        ],
-    },
-];
 
-function addChildNode(option: any) {
-    console.log(option)
+// function generateTree(items) {
+//     const map = {};
+//     const tree = [];
+
+//     items.forEach(item => {
+//         map[item.id] = { ...item, children: [] };
+//     });
+
+//     items.forEach(item => {
+//         if (item.parent_id !== null && item.parent_id !== 0) {
+//             map[item.parent_id].children.push(map[item.id]);
+//         } else {
+//             tree.push(map[item.id]);
+//         }
+//     });
+
+//     return tree;
+// }
+
+function generateTree(items) {
+    const map = {};
+    const tree = [];
+
+    items.forEach(item => {
+        map[item.id] = item;
+    });
+
+    items.forEach(item => {
+        if (item.parent_id !== null && item.parent_id !== 0) {
+            if (!("children" in map[item.parent_id])) {
+                map[item.parent_id].children = [];
+            }
+            map[item.parent_id].children.push(map[item.id]);
+        } else {
+            tree.push(map[item.id]);
+        }
+    });
+
+    return tree;
 }
 
 
-function delNode(option: any) {
-    console.log(option)
+async function addChildNode(option: any) {
+    // console.log(option)
+    const opts = createTreeFormOptions(message);
+    opts.initialForm = { parent_id: option.id, name: '初始值' };
+    const wrapperRef = await openDialog(opts);
+}
+
+async function editNode(option: any) {
+    // console.log(option)
+    const opts = createTreeFormOptions(message);
+    opts.initialForm = option;
+    const wrapperRef = await openDialog(opts);
+}
+
+async function delNode(option: any) {
+    // console.log(option)
+
+    let ret = await fast_equipment_api.DelObj(option.id);
+    if (!ret.error) {
+        message.success('删除成功');
+        await refreshTree();
+    }
 }
 /**
 *  找到对应的节点
@@ -287,10 +313,6 @@ function getTreeItem(data: any[], key?: string | number): any {
 }
 
 
-function selectAddMenu(key: string) {
-    drawerTitle.value = key === 'home' ? '添加顶栏菜单' : `添加子菜单：${treeItemTitle.value}`;
-    openCreateDrawer();
-}
 
 function openCreateDrawer() {
     const { openDrawer } = createDrawerRef.value;
@@ -341,12 +363,15 @@ function formSubmit() {
     });
 }
 
-function packHandle() {
-    if (expandedKeys.value.length) {
-        expandedKeys.value = [];
-    } else {
-        expandedKeys.value = unref(treeData).map((item: any) => item.key as string) as [];
-    }
+async function addRoot() {
+    // 侧栏操作
+    // openCreateDrawer();
+
+    const opts = createTreeFormOptions(message);
+    opts.initialForm = { name: '初始值' };
+
+    const wrapperRef = await openDialog(opts);
+    console.log('对话框已打开', wrapperRef);
 }
 
 
@@ -371,12 +396,21 @@ function createData(level = 4, baseKey = ''): TreeOption[] | undefined {
     })
 }
 
-onMounted(async () => {
-    const treeMenuList = mlist;
-    const keys = treeMenuList.map((item) => item.key);
-    Object.assign(formParams, keys);
+async function refreshTree() {
+    loading.value = true;
+    let equipment_list = await equipment_api.list();
+    const treeMenuList = generateTree(equipment_list.data.data);
     treeData.value = treeMenuList;
     loading.value = false;
+}
+
+onMounted(async () => {
+    await refreshTree();
+    // const keys = treeMenuList.map((item) => item.id);
+    // Object.assign(formParams, keys);
+
+    // treeData.value = treeMenuList;
+    // loading.value = false;
 });
 
 function onExpandedKeys(keys) {

@@ -48,6 +48,53 @@ class MfsDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+##################################################################
+
+class Ref_MfpDTO(BaseModel):
+    id: Optional[int] = None
+    name: Optional[str] = None
+    desc: Optional[str] = None
+    type_id: Optional[int] = None
+    model_config = ConfigDict(from_attributes=True)
+
+class Ref_MfptDTO(BaseModel):
+    id: Optional[int] = None
+    name: Optional[str] = None
+    desc: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MfptCreateDTO(BaseModel):
+    name: str
+    desc: str
+   
+class MfptDTO(BaseModel):
+    id: Optional[int] = None
+    name: Optional[str] = None
+    desc: Optional[str] = None
+    mfss: Optional[List[Ref_MfsDTO]] = None
+    mfss_refids: Optional[List[int]] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MfpCreateDTO(BaseModel):
+    name: str
+    desc: str
+    type_id: Optional[int] = None
+
+
+class MfpDTO(BaseModel):
+    id: Optional[int] = None
+    name: Optional[str] = None
+    desc: Optional[str] = None
+    type: Optional[Ref_MfstDTO] = None
+    type_id: Optional[int] = None
+    model_config = ConfigDict(from_attributes=True)
+    
+##################################################################
+
+
 class EquipmentCreateDTO(BaseModel):
     name: str
     type: Optional[int] = None
@@ -61,5 +108,7 @@ class EquipmentDTO(BaseModel):
     name: Optional[str] = None
     type: Optional[int] = None
     parent_id: Optional[int] = None
+    mfpts: Optional[List[Ref_MfptDTO]] = None
+    mfsts: Optional[List[Ref_MfstDTO]] = None
     mfpts_refids: Optional[List[int]] = None
     mfsts_refids: Optional[List[int]] = None

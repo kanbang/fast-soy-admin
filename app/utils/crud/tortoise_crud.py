@@ -609,45 +609,33 @@ class TortoiseCRUDRouter(CRUDGenerator[SCHEMA]):
         obj_id = getattr(obj, self._pk)
         for rkey, rlist in relation_field.items():
             related_field = self.db_model._meta.fields_map[rkey]
-            # if isinstance(prop, Relationship):
             rclass = related_field.related_model
-            rfield = related_field.relation_field
             rpk: str = rclass._meta.pk_attr
 
             filter_conditions = Q(**{f"{rpk}__in": rlist})
-            update_val = {rfield: obj_id}
-            none_val = {rfield: None}
+            if isinstance(related_field, fields.relational.BackwardFKRelation):
+                rfield = related_field.relation_field
+                update_val = {rfield: obj_id}
+                none_val = {rfield: None}
 
-            # 使用事务进行批量更新
-            async with transactions.in_transaction():
-                # 1. 删掉所有指向obj_id的外键引用
-                await rclass.filter(**update_val).update(**none_val)
-                # 2. 更新关联数据的外键
-                await rclass.filter(filter_conditions).update(**update_val)
+                # 使用事务进行批量更新
+                async with transactions.in_transaction():
+                    # 1. 删掉所有指向obj_id的外键引用
+                    await rclass.filter(**update_val).update(**none_val)
+                    # 2. 更新关联数据的外键
+                    await rclass.filter(filter_conditions).update(**update_val)
+            elif isinstance(related_field, fields.relational.ManyToManyFieldInstance):
+                rfield = related_field.model_field_name
+                await obj.fetch_related(rfield)
+                obj_related = getattr(obj, rfield)
+                await obj_related.clear()
+                filter_conditions = Q(**{f"{self._pk}__in": rlist})
+                robjs = await rclass.filter(filter_conditions)
+                for robj in robjs:
+                    await obj_related.add(robj)
+            else:
+                pass
 
-        # authors = await Author.all().prefetch_related('books')
-        # for author in authors:
-        #     print(f"Author: {author.name}")
-        #     for book in author.books:
-        #         print(f"  Book: {book.title}")
-
-        # await author1.books.remove(book2)
-        # await author2.books.add(book2)
-        # # 添加作者与书籍之间的多对多关系
-        # await author1.books.add(book1)
-        # await author1.books.add(book2)
-        # await author2.books.add(book1)
-
-        # # 获取并打印所有作者及其书籍
-        # authors = await Author.all().prefetch_related('books')
-        # print("Before removing books from author1:")
-        # for author in authors:
-        #     print(f"Author: {author.name}")
-        #     for book in author.books:
-        #         print(f"  Book: {book.title}")
-
-        # # 移除author1的所有书籍
-        # await author1.books.clear()
         ##########################################################################################
 
         params = await self.__handle_data(model_dict, False, request)
