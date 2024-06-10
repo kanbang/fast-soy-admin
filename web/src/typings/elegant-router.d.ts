@@ -56,6 +56,7 @@ declare module "@elegant-router/types" {
     "function_toggle-auth": "/function/toggle-auth";
     "home": "/home";
     "ifd": "/ifd";
+    "ifd_mfs": "/ifd/mfs";
     "ifd_unit": "/ifd/unit";
     "iframe-page": "/iframe-page/:url";
     "knowledge": "/knowledge";
@@ -177,6 +178,7 @@ declare module "@elegant-router/types" {
     | "function_tab"
     | "function_toggle-auth"
     | "home"
+    | "ifd_mfs"
     | "ifd_unit"
     | "knowledge_generate"
     | "knowledge_query"

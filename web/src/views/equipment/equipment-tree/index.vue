@@ -1,12 +1,12 @@
 <template>
-    <div class="h-full flex flex-col" >
-        <div class="n-layout-page-header">
+    <n-flex vertical class="h-full">
+        <div class="n-layout-page-header w-full">
             <n-card :bordered="false" title="设备树管理">
-                <!-- 页面数据为 Mock 示例数据，非真实数据。 -->
+                <!-- 示例数据。 -->
             </n-card>
         </div>
-        <n-grid class="mt-4 flex-grow" cols="1 s:1 m:1 l:3 xl:3 2xl:3" responsive="screen" :x-gap="12">
-            <n-gi span="1">
+        <n-grid class="flex-grow" cols="1 s:1 m:1 l:5 xl:5 2xl:5" responsive="screen" :x-gap="12">
+            <n-gi span="2">
                 <n-card class="h-full" :segmented="{ content: true }" :bordered="false" size="small">
                     <template #header>
                         <n-space>
@@ -21,7 +21,7 @@
                             </n-button>
                         </n-space>
                     </template>
-                    <div class="h-full w-full menu">
+                    <div class="h-full w-full menu flex flex-col">
                         <n-input v-model:value="pattern" placeholder="输入设备名称搜索">
                             <template #suffix>
                                 <n-icon size="18" class="cursor-pointer">
@@ -29,18 +29,19 @@
                                 </n-icon>
                             </template>
                         </n-input>
-                        <div class="py-3 menu-list">
+                        <div ref="treeContainer" v-resize="onTreeContainerResize" class="py-3 menu-list flex-grow">
                             <template v-if="loading">
                                 <div class="flex items-center justify-center py-4">
                                     <n-spin size="medium" />
                                 </div>
                             </template>
                             <template v-else>
-                                <x-n-tree block-line show-line :draggable="false" :show-irrelevant-nodes="false"
-                                    :virtual-scroll="true" :pattern="pattern" :data="treeData" key-field="id" label-field="name"
-                                    :expandedKeys="expandedKeys" style="max-height: 350px; overflow: hidden"
-                                    @update:selected-keys="selectedTree" @update:expanded-keys="onExpandedKeys">
+                                <x-n-tree :style="{ height: treeHeight + 'px' }" :virtual-scroll="true" block-line
+                                    show-line :draggable="false" :show-irrelevant-nodes="false" :pattern="pattern"
+                                    :data="treeData" key-field="id" label-field="name"
+                                    @update:selected-keys="selectedTree">
 
+                                    <!-- style="max-height: 350px; overflow: hidden" -->
                                     <template #render-label="{ option }">
                                         <span class="custom-tree-node">
                                             <span>{{ option.name }}</span>
@@ -67,14 +68,14 @@
                     </div>
                 </n-card>
             </n-gi>
-            <n-gi span="2">
+            <n-gi span="3">
                 <n-card :segmented="{ content: true }" :bordered="false" size="small">
                     <template #header>
                         <n-space>
                             <n-icon size="18">
                                 <FormOutlined />
                             </n-icon>
-                            <span>编辑菜单{{ treeItemTitle ? `：${treeItemTitle}` : '' }}</span>
+                            <span>编辑菜单{{ treeItemTitle ? `：${treeItemTitle} ` : '' }}</span>
                         </n-space>
                     </template>
                     <n-alert type="info" closable> 从菜单列表选择一项后，进行编辑</n-alert>
@@ -114,11 +115,12 @@
                 </n-card>
             </n-gi>
         </n-grid>
+
         <CreateDrawer ref="createDrawerRef" :title="drawerTitle" />
-    </div>
+    </n-flex>
 </template>
 <script lang="ts" setup>
-import { ref, unref, reactive, onMounted, computed } from 'vue';
+import { ref, unref, reactive, onMounted, computed, Ref, nextTick } from 'vue';
 import { useDialog, useMessage } from 'naive-ui';
 // import { DownOutlined, AlignLeftOutlined, SearchOutlined, FormOutlined } from '@vicons/antd';
 // import { getMenuList } from '@/api/system/menu';
@@ -161,10 +163,9 @@ const treeItemTitle = ref('');
 const pattern = ref('');
 const drawerTitle = ref('');
 
+const treeHeight: Ref<number> = ref(0);
+const treeContainer: Ref<HTMLDivElement | null> = ref(null);
 
-const isAddSon = computed(() => {
-    return !treeItemKey.value.length;
-});
 
 function createTreeFormOptions(message: any) {
     const { buildFormOptions } = useColumns();
@@ -375,26 +376,26 @@ async function addRoot() {
 }
 
 
-function createData(level = 4, baseKey = ''): TreeOption[] | undefined {
-    if (!level) return undefined
-    return repeat(6 - level, undefined).map((_, index) => {
-        const key = '' + baseKey + level + index
-        const label = createLabel(level)
-        return {
-            label,
-            key,
-            children: createData(level - 1, key),
-            suffix: () =>
-                h(
-                    NButton,
-                    { text: true, type: 'primary' },
-                    { default: () => 'Suffix' }
-                ),
-            prefix: () =>
-                h(NButton, { text: true, type: 'primary' }, { default: () => 'Prefix' })
-        }
-    })
-}
+// function createData(level = 4, baseKey = ''): TreeOption[] | undefined {
+//     if (!level) return undefined
+//     return repeat(6 - level, undefined).map((_, index) => {
+//         const key = '' + baseKey + level + index
+//         const label = createLabel(level)
+//         return {
+//             label,
+//             key,
+//             children: createData(level - 1, key),
+//             suffix: () =>
+//                 h(
+//                     NButton,
+//                     { text: true, type: 'primary' },
+//                     { default: () => 'Suffix' }
+//                 ),
+//             prefix: () =>
+//                 h(NButton, { text: true, type: 'primary' }, { default: () => 'Prefix' })
+//         }
+//     })
+// }
 
 async function refreshTree() {
     loading.value = true;
@@ -404,8 +405,19 @@ async function refreshTree() {
     loading.value = false;
 }
 
+function onTreeContainerResize({ width, height }) {
+    treeHeight.value = height - 22;
+}
+
 onMounted(async () => {
     await refreshTree();
+
+    nextTick(() => {
+        if (treeContainer.value) {
+            treeHeight.value = treeContainer.value.clientHeight - 22;
+        }
+    });
+
     // const keys = treeMenuList.map((item) => item.id);
     // Object.assign(formParams, keys);
 
@@ -413,9 +425,7 @@ onMounted(async () => {
     // loading.value = false;
 });
 
-function onExpandedKeys(keys) {
-    expandedKeys.value = keys;
-}
+
 </script>
 
 

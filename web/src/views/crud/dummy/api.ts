@@ -4,7 +4,7 @@
  * @Author: zhai
  * @Date: 2024-06-05 21:21:25
  * @LastEditors: zhai
- * @LastEditTime: 2024-06-09 15:44:45
+ * @LastEditTime: 2024-06-10 20:23:11
  */
 import { mockRequest, request } from '@/service/request';
 import { CrudApi } from '@/service/crud-api';
@@ -31,4 +31,4 @@ export type DemoRecord = {
   [key: string]: any;
 };
 
-export const fast_dummy_api = FastCrudApi.instance(dummy_api) as FastCrudApi<DemoRecord>;
+export const fast_dummy_api = new FastCrudApi(dummy_api);

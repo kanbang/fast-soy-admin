@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { CreateCrudOptionsProps, CreateCrudOptionsRet, ValueBuilderContext, useFs } from "@fast-crud/fast-crud";
-import type { AddReq, DelReq, EditReq, UserPageQuery, UserPageRes } from '@fast-crud/fast-crud';
+import type { AddReq, DelReq, EditReq, UserPageQuery, UserPageRes, ValueResolveContext } from '@fast-crud/fast-crud';
 import { dict } from '@fast-crud/fast-crud';
 import dayjs from 'dayjs';
 import { fast_dummy_api } from './api';
@@ -30,16 +30,6 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
     const { form } = req;
     return fast_dummy_api.AddObj(form);
   };
-
-
-  // "name": "string",
-  // "age": 0,
-  // "salary": 0,
-  // "is_active": true,
-  // "birthdate": "2024-06-04",
-  // "created_at": "2024-06-04T06:46:56.703Z",
-  // "notes": "string",
-  // "json_data": "string"
 
   return {
     crudOptions: {
@@ -106,12 +96,10 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
         birthdate: {
           title: '生日',
           type: 'date',
-          // naive 默认仅支持数字类型时间戳作为日期输入与输出
-          // 字符串类型的时间需要转换格式
+         
           valueBuilder(context) {
             const { value, row, key } = context;
             if (value) {
-              // naive 默认仅支持时间戳作为日期输入与输出
               row[key] = dayjs(value).valueOf();
             }
           },
@@ -125,12 +113,9 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
         created_at: {
           title: '创建时间',
           type: 'datetime',
-          // naive 默认仅支持数字类型时间戳作为日期输入与输出
-          // 字符串类型的时间需要转换格式
           valueBuilder(context) {
             const { value, row, key } = context;
             if (value) {
-              // naive 默认仅支持时间戳作为日期输入与输出
               row[key] = dayjs(value).valueOf();
             }
           },
@@ -141,14 +126,7 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
             }
           }
         },
-        // select: {
-        //   title: '状态',
-        //   search: { show: true },
-        //   type: 'dict-select',
-        //   dict: dict({
-        //     url: '/mock/crud/demo/dict'
-        //   })
-        // },
+     
         notes: {
           title: '文本',
           type: 'text',
@@ -173,39 +151,6 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
             },
           },
         },
-
-        // copyable: {
-        //   title: '可复制',
-        //   type: ['text', 'copyable'],
-        //   search: { show: true }
-        // },
-        // avatar: {
-        //   title: '头像裁剪',
-        //   type: 'cropper-uploader'
-        // },
-        // upload: {
-        //   title: '文件上传',
-        //   type: 'file-uploader'
-        // },
-        // richtext: {
-        //   title: '富文本',
-        //   type: 'editor-wang5',
-        //   column: {
-        //     // cell中不显示
-        //     show: false
-        //   },
-        //   form: {
-        //     col: {
-        //       // 横跨两列
-        //       span: 24
-        //     },
-        //     component: {
-        //       style: {
-        //         height: '300px'
-        //       }
-        //     }
-        //   }
-        // }
       }
     }
   };

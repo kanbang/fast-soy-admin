@@ -18,10 +18,9 @@ function removeEmptyValues(obj: DictObject): DictObject {
     return newObj;
 }
 
-export class FastCrudApi<T = object> extends Singleton<FastCrudApi<T>> {
+export class FastCrudApi<T = object> {
     api: object | any = null;
     constructor(crud_api: object) {
-        super();
         this.api = crud_api;
     }
 
