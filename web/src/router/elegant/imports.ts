@@ -38,6 +38,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   function_tab: () => import("@/views/function/tab/index.vue"),
   "function_toggle-auth": () => import("@/views/function/toggle-auth/index.vue"),
   home: () => import("@/views/home/index.vue"),
+  ifd_mfp: () => import("@/views/ifd/mfp/index.vue"),
   ifd_mfs: () => import("@/views/ifd/mfs/index.vue"),
   ifd_unit: () => import("@/views/ifd/unit/index.vue"),
   knowledge_generate: () => import("@/views/knowledge/generate/index.vue"),

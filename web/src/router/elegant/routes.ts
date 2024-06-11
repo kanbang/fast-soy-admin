@@ -294,6 +294,15 @@ export const generatedRoutes: GeneratedRoute[] = [
     },
     children: [
       {
+        name: 'ifd_mfp',
+        path: '/ifd/mfp',
+        component: 'view.ifd_mfp',
+        meta: {
+          title: 'ifd_mfp',
+          i18nKey: 'route.ifd_mfp'
+        }
+      },
+      {
         name: 'ifd_mfs',
         path: '/ifd/mfs',
         component: 'view.ifd_mfs',

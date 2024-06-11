@@ -194,6 +194,8 @@ const local: App.I18n.Schema = {
     'early-warning_monitor': '实时监控',
     'early-warning_identify': '故障识别',
     'early-warning_learning': '基准值学习',
+    ifd_mfp:'故障现象管理',
+    ifd_mfs:'故障征兆管理',
   },
   page: {
     login: {
