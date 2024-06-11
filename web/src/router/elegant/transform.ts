@@ -182,6 +182,7 @@ const routeMap: RouteMap = {
   "function_toggle-auth": "/function/toggle-auth",
   "home": "/home",
   "ifd": "/ifd",
+  "ifd_mfp": "/ifd/mfp",
   "ifd_mfs": "/ifd/mfs",
   "ifd_unit": "/ifd/unit",
   "iframe-page": "/iframe-page/:url",
