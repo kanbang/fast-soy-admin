@@ -4,17 +4,20 @@
  * @Author: zhai
  * @Date: 2024-06-02 20:09:52
  * @LastEditors: zhai
- * @LastEditTime: 2024-06-11 22:27:13
+ * @LastEditTime: 2024-06-12 22:00:35
 -->
 
 <template>
-    <div class="my-line-style-1">
-        <n-radio-group v-model:value="curlayout" v-model:default-value="curlayout" @update:value="onLayoutChange">
-            <n-radio-button v-for="lay in layoutnames" :label="lay" />
+    <div class="h-full">
+        <n-radio-group v-model:value="curlayout" @update:value="onLayoutChange">
+            <n-radio-button v-for="lay in layoutnames" :key="lay.value" :value="lay.value">
+                {{ lay.label }}
+            </n-radio-button>
         </n-radio-group>
-        <relation-graph ref="graphRef" :options="graphOptions" @canvas-click="onCanvasClick" @node-click="onNodeClick"
-            @line-click="onLineClick">
-            <!-- <template #node="{ node }">
+        <div class="my-line-style-1">
+            <relation-graph ref="graphRef" :options="graphOptions" @canvas-click="onCanvasClick"
+                @node-click="onNodeClick" @line-click="onLineClick">
+                <!-- <template #node="{ node }">
                 <div @mouseover="showNodeTips(node, $event)" @mouseout="hideNodeTips(node, $event)">
                     <div class="c-my-rg-node">
                         <i style="font-size: 30px;" :class="node.data.myicon" />
@@ -25,9 +28,11 @@
                     </div>
                 </div>
             </template> -->
-        </relation-graph>
+            </relation-graph>
 
+        </div>
     </div>
+
 </template>
 
 <script lang="ts" setup>
@@ -47,17 +52,138 @@ const graphRef = ref<RelationGraphComponent | null>(null);
 // layout: {
 //       layoutName: 'force'
 //     },
-const curlayout = ref("树状布局");
+const curlayout = ref("中心布局");
 const layoutnames = ref([
-    "中心布局",
-    "树状布局",
-    "力学布局"
+    { value: 0, label: "中心布局" },
+    { value: 1, label: "树状布局" },
+    { value: 2, label: "力学布局" }
 ]);
 
 const layouts = (
     {
         "中心布局":
         {
+            layout: {
+                layoutName: 'center',
+                centerOffset_x: 0,
+                centerOffset_y: 0,
+                distance_coefficient: 1,
+                from: "top",
+                levelDistance: "",
+                min_per_width: 100,
+                max_per_width: 500,
+                min_per_height: 300,
+                max_per_height: 500,
+                maxLayoutTimes: 300,
+                force_node_repulsion: 1,
+                force_line_elastic: 1
+            },
+            debug: false,
+            defaultNodeBorderWidth: 0,
+            allowSwitchLineShape: true,
+            allowSwitchJunctionPoint: true,
+            defaultLineShape: 1,
+            defaultFocusRootNode: false,
+
+            moveToCenterWhenRefresh: true,
+            useAnimationWhenRefresh: true,
+            zoomToFitWhenRefresh: true,
+
+            defaultExpandHolderPosition: 'bottom',
+            reLayoutWhenExpandedOrCollapsed: true,
+            useAnimationWhenExpanded: true,
+
+            defaultJunctionPoint: 'border',
+            defaultNodeColor: 'rgb(29, 169, 245)',
+            defaultLineColor: 'rgb(29, 169, 245)',
+        }
+        ,
+        "树状布局":
+        {
+            layout: {
+                layoutName: 'tree'
+            },
+            // layoutClassName: 'seeks-layout-center',
+            // useLayoutStyleOptions: true,
+            // from: 'top',
+            // defaultNodeWidth: 30,
+            // defaultNodeHeight: 100,
+            // defaultJunctionPoint: 'tb',
+            // defaultNodeShape: 1,
+            // defaultLineShape: 4,
+            // defaultNodeBorderWidth: 0,
+            // defaultLineColor: 'rgba(0, 186, 189, 1)',
+            // defaultNodeColor: 'rgba(0, 206, 209, 1)',
+            // min_per_width: 40,
+            // max_per_width: 70,
+            // min_per_height: 200
+
+        },
+        "力学布局":
+        {
+            layout: {
+                layoutName: 'force'
+            },
+            // layoutClassName: 'seeks-layout-center',
+            // useLayoutStyleOptions: true,
+            // from: 'left',
+            // defaultNodeWidth: 100,
+            // defaultNodeHeight: 30,
+            // defaultJunctionPoint: 'lr',
+            // defaultNodeShape: 1,
+            // defaultLineShape: 3,
+            // defaultNodeBorderWidth: 0,
+            // defaultLineColor: '#cccccc',
+            // defaultNodeColor: '#43a2f1',
+            // min_per_width: 200,
+            // max_per_width: 400,
+            // min_per_height: 40,
+            // max_per_height: 70
+        }
+    });
+
+async function onLayoutChange(lay) {
+    // graphOptions.value.layout.layoutName = "tree";
+    const graphInstance = graphRef.value.getInstance();
+    // graphInstance.setOptions(layouts[lay]);
+    graphInstance.switchLayout(graphOptions.layouts[lay]);
+
+    await graphInstance.moveToCenter();
+    await graphInstance.zoomToFit();
+}
+
+// const graphOptions: RGOptions = {
+//     debug: false,
+//     defaultNodeBorderWidth: 0,
+//     allowSwitchLineShape: true,
+//     allowSwitchJunctionPoint: true,
+//     defaultLineShape: 1,
+//     defaultFocusRootNode: false,
+
+//     moveToCenterWhenRefresh: true,
+//     useAnimationWhenRefresh: true,
+//     zoomToFitWhenRefresh: true,
+
+//     defaultExpandHolderPosition: 'bottom',
+//     reLayoutWhenExpandedOrCollapsed: true,
+//     useAnimationWhenExpanded: true,
+
+//     layout: {
+//         layoutName: 'center'
+//     },
+
+//     defaultJunctionPoint: 'border',
+//     defaultNodeColor: 'rgb(29, 169, 245)',
+//     defaultLineColor: 'rgb(29, 169, 245)',
+// };
+
+const graphOptions: RGOptions = {
+    allowSwitchLineShape: true,
+    allowSwitchJunctionPoint: true,
+    toolBarVersion: 'v1',
+    layouts: [
+        {
+            label: '中心布局',
             layoutName: 'center',
             layoutClassName: 'seeks-layout-center',
             useLayoutStyleOptions: true,
@@ -66,14 +192,11 @@ const layouts = (
             defaultNodeBorderWidth: 0,
             defaultNodeColor: 'rgba(238, 178, 94, 1)',
             defaultLineShape: 1
-        }
-        ,
-        "树状布局":
-        {
 
-            layout: {
-                layoutName: 'tree'
-            },
+        },
+        {
+            label: '树状布局',
+            layoutName: 'tree',
             layoutClassName: 'seeks-layout-center',
             useLayoutStyleOptions: true,
             from: 'top',
@@ -90,8 +213,8 @@ const layouts = (
             min_per_height: 200
 
         },
-        "力学布局":
         {
+            label: '布局3',
             layoutName: 'force',
             layoutClassName: 'seeks-layout-center',
             useLayoutStyleOptions: true,
@@ -108,40 +231,10 @@ const layouts = (
             max_per_width: 400,
             min_per_height: 40,
             max_per_height: 70
+
         }
-    });
-
-function onLayoutChange() {
-    debugger
-    // graphOptions.value.layout.layoutName = "tree";
-    const graphInstance = graphRef.value.getInstance();
-    graphInstance.setOptions(layouts["树状布局"]);
-}
-
-const graphOptions: RGOptions = {
-    debug: false,
-    defaultNodeBorderWidth: 0,
-    allowSwitchLineShape: true,
-    allowSwitchJunctionPoint: true,
-    defaultLineShape: 1,
-    defaultFocusRootNode: false,
-
-    moveToCenterWhenRefresh: true,
-    useAnimationWhenRefresh: true,
-    zoomToFitWhenRefresh: true,
-
-    defaultExpandHolderPosition: 'bottom',
-    reLayoutWhenExpandedOrCollapsed: true,
-    useAnimationWhenExpanded: true,
-
-    layout: {
-        layoutName: 'center'
-    },
-
-
-    defaultJunctionPoint: 'border',
-    defaultNodeColor: 'rgb(29, 169, 245)',
-    defaultLineColor: 'rgb(29, 169, 245)',
+    ],
+    defaultJunctionPoint: 'border'
 };
 
 onMounted(() => {
