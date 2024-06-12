@@ -9,17 +9,114 @@
 
 <template>
     <div class="my-line-style-1">
-        <relation-graph ref="graphRef" :options="graphOptions" @node-click="onNodeClick" @line-click="onLineClick" />
+        <n-radio-group v-model:value="curlayout" v-model:default-value="curlayout" @update:value="onLayoutChange">
+            <n-radio-button v-for="lay in layoutnames" :label="lay" />
+        </n-radio-group>
+        <relation-graph ref="graphRef" :options="graphOptions" @canvas-click="onCanvasClick" @node-click="onNodeClick"
+            @line-click="onLineClick">
+            <!-- <template #node="{ node }">
+                <div @mouseover="showNodeTips(node, $event)" @mouseout="hideNodeTips(node, $event)">
+                    <div class="c-my-rg-node">
+                        <i style="font-size: 30px;" :class="node.data.myicon" />
+                    </div>
+                    <div
+                        style="color: forestgreen;font-size: 16px;position: absolute;width: 160px;height:25px;line-height: 25px;margin-top:5px;margin-left:-48px;text-align: center;background-color: rgba(66,187,66,0.2);">
+                        {{ node.data.myicon }}
+                    </div>
+                </div>
+            </template> -->
+        </relation-graph>
+
     </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import RelationGraph from 'relation-graph/vue3';
 import type { RGJsonData, RGNode, RGLine, RGLink, RGUserEvent, RGOptions, RelationGraphComponent } from 'relation-graph-vue3';
 
 
 const graphRef = ref<RelationGraphComponent | null>(null);
+
+// 'layout': {
+//         'layoutName': 'tree',
+//         'min_per_width': 40,
+//         'max_per_width': 70,
+//         'min_per_height': 200
+//     },
+// layout: {
+//       layoutName: 'force'
+//     },
+const curlayout = ref("树状布局");
+const layoutnames = ref([
+    "中心布局",
+    "树状布局",
+    "力学布局"
+]);
+
+const layouts = (
+    {
+        "中心布局":
+        {
+            layoutName: 'center',
+            layoutClassName: 'seeks-layout-center',
+            useLayoutStyleOptions: true,
+            defaultNodeWidth: 50,
+            defaultNodeHeight: 50,
+            defaultNodeBorderWidth: 0,
+            defaultNodeColor: 'rgba(238, 178, 94, 1)',
+            defaultLineShape: 1
+        }
+        ,
+        "树状布局":
+        {
+
+            layout: {
+                layoutName: 'tree'
+            },
+            layoutClassName: 'seeks-layout-center',
+            useLayoutStyleOptions: true,
+            from: 'top',
+            defaultNodeWidth: 30,
+            defaultNodeHeight: 100,
+            defaultJunctionPoint: 'tb',
+            defaultNodeShape: 1,
+            defaultLineShape: 4,
+            defaultNodeBorderWidth: 0,
+            defaultLineColor: 'rgba(0, 186, 189, 1)',
+            defaultNodeColor: 'rgba(0, 206, 209, 1)',
+            min_per_width: 40,
+            max_per_width: 70,
+            min_per_height: 200
+
+        },
+        "力学布局":
+        {
+            layoutName: 'force',
+            layoutClassName: 'seeks-layout-center',
+            useLayoutStyleOptions: true,
+            from: 'left',
+            defaultNodeWidth: 100,
+            defaultNodeHeight: 30,
+            defaultJunctionPoint: 'lr',
+            defaultNodeShape: 1,
+            defaultLineShape: 3,
+            defaultNodeBorderWidth: 0,
+            defaultLineColor: '#cccccc',
+            defaultNodeColor: '#43a2f1',
+            min_per_width: 200,
+            max_per_width: 400,
+            min_per_height: 40,
+            max_per_height: 70
+        }
+    });
+
+function onLayoutChange() {
+    debugger
+    // graphOptions.value.layout.layoutName = "tree";
+    const graphInstance = graphRef.value.getInstance();
+    graphInstance.setOptions(layouts["树状布局"]);
+}
 
 const graphOptions: RGOptions = {
     debug: false,
@@ -27,15 +124,138 @@ const graphOptions: RGOptions = {
     allowSwitchLineShape: true,
     allowSwitchJunctionPoint: true,
     defaultLineShape: 1,
+    defaultFocusRootNode: false,
+
+    moveToCenterWhenRefresh: true,
+    useAnimationWhenRefresh: true,
+    zoomToFitWhenRefresh: true,
+
+    defaultExpandHolderPosition: 'bottom',
+    reLayoutWhenExpandedOrCollapsed: true,
+    useAnimationWhenExpanded: true,
+
     layout: {
-        layoutName: 'force'
+        layoutName: 'center'
     },
-    defaultJunctionPoint: 'border'
+
+
+    defaultJunctionPoint: 'border',
+    defaultNodeColor: 'rgb(29, 169, 245)',
+    defaultLineColor: 'rgb(29, 169, 245)',
 };
 
 onMounted(() => {
     showGraph();
 });
+
+
+const isShowNodeTipsPanel = ref(false);
+const nodeMenuPanelPosition = ref({ x: 0, y: 0 });
+const currentNode = ref({});
+
+const showNodeTips = (nodeObject, $event) => {
+    currentNode.value = nodeObject;
+    const _base_position = myPage.value.getBoundingClientRect();
+    console.log('showNodeMenus:', $event.clientX, $event.clientY, _base_position);
+    isShowNodeTipsPanel.value = true;
+    nodeMenuPanelPosition.value.x = $event.clientX - _base_position.x + 10;
+    nodeMenuPanelPosition.value.y = $event.clientY - _base_position.y + 10;
+};
+
+const hideNodeTips = (nodeObject, $event) => {
+    isShowNodeTipsPanel.value = false;
+};
+
+// const onSizeOptionChanged = () => {
+//     myGraphPanelSize.value.width = currentSize.value;
+//     myGraphPanelSize.value.height = currentSize.value;
+//     nextTick(() => {
+//         const graphInstance = graphRef.value.getInstance();
+//         graphInstance.refresh();
+//     });
+// };
+
+
+const onNodeClick = (nodeObject: RGNode, $event: RGUserEvent) => {
+
+    // graphRef.value.getNodes().forEach((item) => {
+    //     if (item.id != nodeObject.id) {
+    //         item.opacity = 0.1;
+    //     } else {
+    //         item.opacity = 1;
+    //     }
+    // });
+    // graphRef.value.getLines().forEach((item) => {
+    //     item.relations.forEach((line) => {
+    //         if (item.toNode.id == nodeObject.id || item.fromNode.id == nodeObject.id) {
+    //             line.styleClass = "";
+    //         } else {
+    //             line.styleClass = "joubn";
+    //         }
+    //     });
+    //     if (item.toNode.id == nodeObject.id || item.fromNode.id == nodeObject.id) {
+    //         item.fromNode.opacity = 1;
+    //         item.toNode.opacity = 1;
+    //     }
+    // });
+    console.log('onNodeClick:', nodeObject);
+
+    let ids: string[] = [nodeObject.id];
+    for (const cNode of nodeObject.lot.childs) {
+        ids.push(cNode.id);
+    }
+
+    const graphInstance = graphRef.value?.getInstance();
+    if (graphInstance) {
+        for (const node of graphInstance.getNodes()) {
+            if (ids.includes(node.id)) {
+                node.opacity = 1;
+                node.color = 'rgb(116,2,173)';
+            } else {
+                node.opacity = 0.1;
+                node.color = undefined;
+            }
+        }
+        for (const link of graphInstance.getLinks()) {
+            if (ids.includes(link.fromNode.id) && ids.includes(link.toNode.id)) {
+                link.relations.forEach(line => {
+                    line.color = 'rgb(116,2,173)';
+                });
+            } else {
+                link.relations.forEach(line => {
+                    line.color = '';
+                });
+            }
+        }
+    }
+
+};
+
+const onCanvasClick = ($event: RGUserEvent) => {
+    console.log('onCanvasClick:', $event);
+    // const graphInstance = graphRef.value?.getInstance();
+    // if (graphInstance) {
+    //     graphInstance.clearChecked();
+    // }
+
+    const graphInstance = graphRef.value?.getInstance();
+    if (graphInstance) {
+        for (const node of graphInstance.getNodes()) {
+            node.opacity = 1;
+            node.color = undefined;
+        }
+        for (const link of graphInstance.getLinks()) {
+            link.relations.forEach(line => {
+                line.color = undefined;
+            });
+        }
+    }
+};
+
+const onLineClick = (lineObject: RGLine, linkObject: RGLink, $event: RGUserEvent) => {
+    console.log('onLineClick:', lineObject);
+};
+
 
 const showGraph = async () => {
     const __graph_json_data: RGJsonData = {
@@ -260,13 +480,6 @@ const showGraph = async () => {
     }
 };
 
-const onNodeClick = (nodeObject: RGNode, $event: RGUserEvent) => {
-    console.log('onNodeClick:', nodeObject);
-};
-
-const onLineClick = (lineObject: RGLine, linkObject: RGLink, $event: RGUserEvent) => {
-    console.log('onLineClick:', lineObject);
-};
 </script>
 
 <style scoped></style>
@@ -277,11 +490,23 @@ const onLineClick = (lineObject: RGLine, linkObject: RGLink, $event: RGUserEvent
     background: linear-gradient(to right, rgb(16, 185, 129), rgb(101, 163, 13));
 }
 
+
+.joubn {
+    opacity: .1;
+}
+
+.joubn+g {
+    opacity: 0;
+}
+
 // 通过全局样式 修改图谱内部使用到的 自定义样式
 .my-line-style-1 {
     .c-rg-line-checked {
         animation: my-line-anm1 2s linear infinite;
     }
+
+    width:1000px;
+    height: 800px;
 }
 
 .my-line-style-2 {
