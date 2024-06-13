@@ -3,13 +3,13 @@
 
         <n-grid class="flex-grow" cols="1 s:1 m:1 l:2 xl:2 2xl:2" responsive="screen" :x-gap="12">
             <n-gi span="1">
-                <n-card title="故障征兆类型" class="h-full" size="small">
-                    <mfst @select-type="onSelectType"> </mfst>
+                <n-card title="故障现象类型" class="h-full" size="small">
+                    <mfpt @select-type="onSelectType"> </mfpt>
                 </n-card>
             </n-gi>
             <n-gi span="1">
-                <n-card title="故障征兆" class="h-full" size="small">
-                    <mfs :type_id="selectedType"> </mfs>
+                <n-card title="故障现象" class="h-full" size="small">
+                    <mfp :type_id="selectedType"> </mfp>
                 </n-card>
             </n-gi>
         </n-grid>
@@ -21,8 +21,8 @@ import { ref, unref, reactive, onMounted, computed, Ref, nextTick } from 'vue';
 import { useDialog, useMessage } from 'naive-ui';
 
 import { useColumns, useFormWrapper } from '@fast-crud/fast-crud';
-import Mfst from './mfst.vue';
-import Mfs from './mfs.vue';
+import mfpt from './mfpt.vue';
+import mfp from './mfp.vue';
 
 
 const { openDialog } = useFormWrapper();

@@ -21,8 +21,8 @@ import { ref, unref, reactive, onMounted, computed, Ref, nextTick } from 'vue';
 import { useDialog, useMessage } from 'naive-ui';
 
 import { useColumns, useFormWrapper } from '@fast-crud/fast-crud';
-import Mfst from './mfst.vue';
-import Mfs from './mfs.vue';
+import mfst from './mfst.vue';
+import mfs from './mfs.vue';
 
 
 const { openDialog } = useFormWrapper();

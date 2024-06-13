@@ -75,43 +75,11 @@
                             <n-icon size="18">
                                 <FormOutlined />
                             </n-icon>
-                            <span>编辑菜单{{ treeItemTitle ? `：${treeItemTitle} ` : '' }}</span>
+                            <span>编辑{{ treeItemTitle ? `：${treeItemTitle} ` : '' }}</span>
                         </n-space>
                     </template>
                     <n-alert type="info" closable> 从菜单列表选择一项后，进行编辑</n-alert>
-                    <n-form :model="formParams" :rules="rules" ref="formRef" label-placement="left" :label-width="100"
-                        v-if="isEditMenu" class="py-4">
-                        <n-form-item label="类型" path="type">
-                            <span>{{ formParams.type === 1 ? '侧边栏菜单' : '' }}</span>
-                        </n-form-item>
-                        <n-form-item label="标题" path="label">
-                            <n-input placeholder="请输入标题" v-model:value="formParams.label" />
-                        </n-form-item>
-                        <n-form-item label="副标题" path="subtitle">
-                            <n-input placeholder="请输入副标题" v-model:value="formParams.subtitle" />
-                        </n-form-item>
-                        <n-form-item label="路径" path="path">
-                            <n-input placeholder="请输入路径" v-model:value="formParams.path" />
-                        </n-form-item>
-                        <n-form-item label="打开方式" path="openType">
-                            <n-radio-group v-model:value="formParams.openType" name="openType">
-                                <n-space>
-                                    <n-radio :value="1">当前窗口</n-radio>
-                                    <n-radio :value="2">新窗口</n-radio>
-                                </n-space>
-                            </n-radio-group>
-                        </n-form-item>
-                        <n-form-item label="菜单权限" path="auth">
-                            <n-input placeholder="请输入权限，多个权限用，分割" v-model:value="formParams.auth" />
-                        </n-form-item>
-                        <n-form-item path="auth" style="margin-left: 100px">
-                            <n-space>
-                                <n-button type="primary" :loading="subLoading" @click="formSubmit">保存修改</n-button>
-                                <n-button @click="handleReset">重置</n-button>
-                                <n-button @click="handleDel">删除</n-button>
-                            </n-space>
-                        </n-form-item>
-                    </n-form>
+             
                 </n-card>
             </n-gi>
         </n-grid>
@@ -197,6 +165,7 @@ function createTreeFormOptions(message: any) {
         form: {
             wrapper: {
                 title: '设备',
+                draggable: false,
             },
             labelCol: { span: 6 },
             async doSubmit({ form }) {

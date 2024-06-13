@@ -11,23 +11,23 @@ import { mockRequest, request } from '@/service/request';
 import { CrudApi } from '@/service/crud-api';
 import { FastCrudApi } from '@/service/fast-crud-api';
 
-export class MfstApi extends CrudApi<MfstApi> {
+export class MfptApi extends CrudApi<MfptApi> {
   constructor() {
-    super("mfst");
+    super("mfpt");
   }
 }
 
-export const mfst_api = MfstApi.instance();
-export const fast_mfst_api = new FastCrudApi(mfst_api);
+export const mfpt_api = MfptApi.instance();
+export const fast_mfpt_api = new FastCrudApi(mfpt_api);
 
 //////////////////////////////////////////////////////////////////////
-export class MfsApi extends CrudApi<MfsApi> {
+export class MfpApi extends CrudApi<MfpApi> {
   constructor() {
-    super("mfs");
+    super("mfp");
   }
 }
 
-export const mfs_api = MfsApi.instance();
-export const fast_mfs_api = new FastCrudApi(mfs_api);
+export const mfp_api = MfpApi.instance();
+export const fast_mfp_api = new FastCrudApi(mfp_api);
 
 

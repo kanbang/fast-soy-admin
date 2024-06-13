@@ -10,8 +10,8 @@ LastEditTime: 2024-06-08 22:59:38
 
 from fastapi import Depends
 
-from app.api.v1.mfs.schema import EquipmentCreateDTO, EquipmentDTO, MfsCreateDTO, MfsDTO, MfstCreateDTO, MfstDTO
-from app.models.ifd.plant import MFS, MFST, Equipment
+from app.api.v1.mfs.schema import EquipmentCreateDTO, EquipmentDTO, MfpCreateDTO, MfpDTO, MfptCreateDTO, MfptDTO, MfsCreateDTO, MfsDTO, MfstCreateDTO, MfstDTO
+from app.models.ifd.plant import MFP, MFPT, MFS, MFST, Equipment
 from app.utils.crud.tortoise_crud import TortoiseCRUDRouter
 from app.utils.crud._types import UserDataOption
 from app.utils.crud._utils import resp_success
@@ -51,6 +51,20 @@ mfs_router = TortoiseCRUDRouter(
     prefix="mfs",
 )
 
+
+mfpt_router = TortoiseCRUDRouter(
+    schema=MfptDTO,
+    create_schema=MfptCreateDTO,
+    db_model=MFPT,
+    prefix="mfpt",
+)
+
+mfp_router = TortoiseCRUDRouter(
+    schema=MfpDTO,
+    create_schema=MfpCreateDTO,
+    db_model=MFP,
+    prefix="mfp",
+)
 
 equipment_router = TortoiseCRUDRouter(
     schema=EquipmentDTO,

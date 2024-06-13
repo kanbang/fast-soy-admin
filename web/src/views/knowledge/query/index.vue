@@ -8,15 +8,28 @@
 -->
 
 <template>
-    <div class="h-full">
+    <n-flex vertical class="h-full">
         <n-radio-group v-model:value="curlayout" @update:value="onLayoutChange">
             <n-radio-button v-for="lay in layoutnames" :key="lay.value" :value="lay.value">
                 {{ lay.label }}
             </n-radio-button>
         </n-radio-group>
-        <div class="my-line-style-1">
+        <div class="flex-grow my-line-style-1">
             <relation-graph ref="graphRef" :options="graphOptions" @canvas-click="onCanvasClick"
                 @node-click="onNodeClick" @line-click="onLineClick">
+                <template #node="{ node }">
+                    <div v-if="node.type === 'my-root-node'" class="my-rg-node my-root-node"><img class="my-image"
+                            :src="node.data.imageUrl"></div>
+                    <div v-else-if="node.type === 'my-input-node'" class="my-rg-node">
+                        <div class="my-form"><input v-model="node.text">
+                            <div style="text-align: left;">Text:{{ node.text }}</div>
+                        </div>
+                    </div>
+                    <div v-else-if="node.type === 'my-color-node'" class="my-rg-node"><input v-model="node.color"
+                            type="color" @change="onMyNodeColorChange(node, $event)"></div>
+                    <div v-else-if="node.type === 'my-cool-node'" class="my-rg-node my-cool-node">Not Cool</div>
+                    <div v-else class="my-rg-node">{{ node.text }}</div>
+                </template>
                 <!-- <template #node="{ node }">
                 <div @mouseover="showNodeTips(node, $event)" @mouseout="hideNodeTips(node, $event)">
                     <div class="c-my-rg-node">
@@ -31,7 +44,7 @@
             </relation-graph>
 
         </div>
-    </div>
+    </n-flex>
 
 </template>
 
@@ -39,6 +52,7 @@
 import { onMounted, reactive, ref } from 'vue';
 import RelationGraph from 'relation-graph/vue3';
 import type { RGJsonData, RGNode, RGLine, RGLink, RGUserEvent, RGOptions, RelationGraphComponent } from 'relation-graph-vue3';
+import { nextTick } from 'process';
 
 
 const graphRef = ref<RelationGraphComponent | null>(null);
@@ -148,8 +162,12 @@ async function onLayoutChange(lay) {
     // graphInstance.setOptions(layouts[lay]);
     graphInstance.switchLayout(graphOptions.layouts[lay]);
 
-    await graphInstance.moveToCenter();
-    await graphInstance.zoomToFit();
+    nextTick(async () => {
+        const graphInstance = graphRef.value.getInstance();
+        await graphInstance.refresh();
+        await graphInstance.moveToCenter();
+        await graphInstance.zoomToFit();
+    });
 }
 
 // const graphOptions: RGOptions = {
@@ -294,6 +312,10 @@ const onNodeClick = (nodeObject: RGNode, $event: RGUserEvent) => {
     console.log('onNodeClick:', nodeObject);
 
     let ids: string[] = [nodeObject.id];
+    if (nodeObject.lot.parent) {
+        ids.push(nodeObject.lot.parent.id);
+    }
+
     for (const cNode of nodeObject.lot.childs) {
         ids.push(cNode.id);
     }
@@ -598,8 +620,6 @@ const showGraph = async () => {
         animation: my-line-anm1 2s linear infinite;
     }
 
-    width:1000px;
-    height: 800px;
 }
 
 .my-line-style-2 {
