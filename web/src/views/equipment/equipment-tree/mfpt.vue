@@ -4,52 +4,51 @@
  * @Author: zhai
  * @Date: 2024-06-10 19:30:05
  * @LastEditors: zhai
- * @LastEditTime: 2024-06-10 22:17:59
+ * @LastEditTime: 2024-06-15 20:35:48
 -->
 <template>
   <div class="h-full">
-    <n-alert v-if="props.type_id == null" type="info" closable>
-      从类型列表选择一项后，进行编辑
-    </n-alert>
-    <fs-crud v-else ref="crudRef" v-bind="crudBinding"> </fs-crud>
+    <fs-crud ref="crudRef" v-bind="crudBinding"> </fs-crud>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { CreateCrudOptionsProps, CreateCrudOptionsRet, ValueBuilderContext, useFs } from "@fast-crud/fast-crud";
 import type { AddReq, DelReq, EditReq, UserPageQuery, UserPageRes, ValueResolveContext } from '@fast-crud/fast-crud';
-import { dict } from '@fast-crud/fast-crud';
-import dayjs from 'dayjs';
-import { fast_mfs_api as api } from './api';
+import { fast_mfpt_api as api } from '@/views/ifd/mfp/api';
 
 
 interface Props {
-  type_id: number | null;
+  selkeys: Array<number>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  type_id: null
+  selkeys: []
 });
 
+// 初始化响应式状态
+const selectedRowKeys = ref(props.selkeys);
 
-watch(() => props.type_id,
-  () => {
-    crudExpose.doRefresh();
-  });
+// 监听props.selkeys
+watch(() => props.selkeys, (newVal) => {
+  selectedRowKeys.value = newVal;
+});
+
+const emit = defineEmits<{
+  (e: 'select-types', value: Array<number>): void;
+}>();
+
 
 function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
   const pageRequest = async (query: UserPageQuery): Promise<UserPageRes> => {
-    query.query['type_id'] = props.type_id;
     return api.GetList(query);
   };
-
   const editRequest = async (ctx: EditReq) => {
     const { form, row } = ctx;
     form.id = row.id;
     return api.UpdateObj(form);
   };
-
   const delRequest = async (ctx: DelReq) => {
     const { row } = ctx;
     return api.DelObj(row.id);
@@ -57,14 +56,13 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
 
   const addRequest = async (req: AddReq) => {
     const { form } = req;
-    form['type_id'] = props.type_id;
     return api.AddObj(form);
   };
 
   return {
     crudOptions: {
       container: {
-        is: 'fs-layout-card'
+        // is: 'fs-layout-card'
       },
       request: {
         pageRequest,
@@ -72,25 +70,60 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
         editRequest,
         delRequest
       },
+      settings: {
+        plugins: {
+          //这里使用行选择插件，生成行选择crudOptions配置，最终会与crudOptions合并
+          rowSelection: {
+            enabled: true,
+            order: -2,
+            before: true,
+            // handle: (pluginProps,useCrudProps)=>CrudOptions,
+            props: {
+              multiple: true,
+              crossPage: true,
+              selectedRowKeys,
+              onSelectedChanged(selected) {
+                // props.selkeys.value = selected;
+                if (selected?.length > 0) {
+                  emit('select-types', selected);
+                }
+                else {
+                  emit('select-types', []);
+                }
+
+                console.log("已选择变化：", selected);
+              }
+            }
+          }
+        }
+      },
+      table: {
+        striped: true
+      },
+      toolbar: {
+        show: false,
+      },
+      actionbar: {
+        show: false,
+      },
       rowHandle: {
-        width: 150
+        show: false,
       },
       search: {
         show: false
       },
-
       form: {
         wrapper: {
           draggable: false,
         }
       },
-
       columns: {
         id: {
           title: 'ID',
           key: 'id',
           type: 'number',
           column: {
+            show: false,
             width: 50
           },
           form: {

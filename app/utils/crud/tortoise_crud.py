@@ -109,6 +109,10 @@ def model_to_dict_relation(model, seen=None):
                 result[field_name] = [
                     model_to_dict_no_relation(item) for item in related.related_objects
                 ]
+
+                result[f"{field_name}_refids"] = [
+                    getattr(item, "id") for item in related.related_objects
+                ]
         else:
             result[field_name] = getattr(model, field_name)
 

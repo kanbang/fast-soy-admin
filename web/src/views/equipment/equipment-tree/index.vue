@@ -29,7 +29,8 @@
                                 </n-icon>
                             </template>
                         </n-input>
-                        <div ref="treeContainer" v-resize="onTreeContainerResize" class="py-3 menu-list flex-grow">
+                        <div ref="treeContainer" v-resize="onTreeContainerResize" style="height: 1px;"
+                            class="py-3 flex-grow overflow-hidden">
                             <template v-if="loading">
                                 <div class="flex items-center justify-center py-4">
                                     <n-spin size="medium" />
@@ -38,8 +39,7 @@
                             <template v-else>
                                 <x-n-tree :style="{ height: treeHeight + 'px' }" :virtual-scroll="true" block-line
                                     show-line :draggable="false" :show-irrelevant-nodes="false" :pattern="pattern"
-                                    :data="treeData" key-field="id" label-field="name"
-                                    @update:selected-keys="selectedTree">
+                                    :data="treeData" key-field="id" label-field="name" :node-props="nodeProps">
 
                                     <!-- style="max-height: 350px; overflow: hidden" -->
                                     <template #render-label="{ option }">
@@ -69,17 +69,25 @@
                 </n-card>
             </n-gi>
             <n-gi span="3">
-                <n-card :segmented="{ content: true }" :bordered="false" size="small">
+                <n-card class="h-full" :segmented="{ content: true }" :bordered="false" size="small">
                     <template #header>
                         <n-space>
                             <n-icon size="18">
                                 <FormOutlined />
                             </n-icon>
-                            <span>编辑{{ treeItemTitle ? `：${treeItemTitle} ` : '' }}</span>
+                            <span>关联征兆现象{{ treeItemTitle ? `：${treeItemTitle} ` : '' }}</span>
                         </n-space>
                     </template>
-                    <n-alert type="info" closable> 从菜单列表选择一项后，进行编辑</n-alert>
-             
+
+                    <n-alert v-if="curEquipment == null" type="info" closable>
+                        从设备列表选择一项后，进行关联
+                    </n-alert>
+                    <n-flex v-else class="h-full">
+                        <mfst class="flex-grow" :selkeys="keysmfst" @select-types="onSelectMfst"> </mfst>
+                        <mfpt class="flex-grow" :selkeys="keysmfpt" @select-types="onSelectMfpt"> </mfpt>
+                    </n-flex>
+
+
                 </n-card>
             </n-gi>
         </n-grid>
@@ -88,8 +96,10 @@
     </n-flex>
 </template>
 <script lang="ts" setup>
+
+
 import { ref, unref, reactive, onMounted, computed, Ref, nextTick } from 'vue';
-import { useDialog, useMessage } from 'naive-ui';
+import { TreeOption, useDialog, useMessage } from 'naive-ui';
 // import { DownOutlined, AlignLeftOutlined, SearchOutlined, FormOutlined } from '@vicons/antd';
 // import { getMenuList } from '@/api/system/menu';
 // import { getTreeItem } from '@/utils';
@@ -97,6 +107,8 @@ import CreateDrawer from './CreateDrawer.vue';
 import { XNTree } from '@skit/x.naive-ui';
 import { useColumns, useFormWrapper } from '@fast-crud/fast-crud';
 import { equipment_api, fast_equipment_api } from './api'
+import mfst from './mfst.vue';
+import mfpt from './mfpt.vue';
 
 const { openDialog } = useFormWrapper();
 
@@ -133,6 +145,59 @@ const drawerTitle = ref('');
 
 const treeHeight: Ref<number> = ref(0);
 const treeContainer: Ref<HTMLDivElement | null> = ref(null);
+
+const curEquipment = ref(null);
+
+const keysmfst = computed(() => {
+    if (curEquipment.value == null || curEquipment.value.mfsts_refids == null) {
+        return [];
+    }
+
+    return curEquipment.value.mfsts_refids;
+});
+
+const keysmfpt = computed(() => {
+    if (curEquipment.value == null || curEquipment.value.mfpts_refids == null) {
+        return [];
+    }
+
+    return curEquipment.value.mfpts_refids;
+});
+
+
+const nodeProps = ({ option }: { option: TreeOption }) => {
+    return {
+        onClick() {
+            // message.info('[Click] ' + JSON.stringify(option))
+            curEquipment.value = option;
+        },
+        // onContextmenu(e: MouseEvent): void {
+        //     optionsRef.value = [option]
+        //     showDropdownRef.value = true
+        //     xRef.value = e.clientX
+        //     yRef.value = e.clientY
+        //     console.log(e.clientX, e.clientY)
+        //     e.preventDefault()
+        // }
+    }
+}
+
+
+function onSelectMfst(value: Array<number>) {
+    console.log(value);
+    if (curEquipment.value) {
+        curEquipment.value.mfsts_refids = value;
+        equipment_api.update(curEquipment.value);
+    }    // keysmfst.value = value;
+}
+
+function onSelectMfpt(value: Array<number>) {
+    console.log(value);
+    if (curEquipment.value) {
+        curEquipment.value.mfpts_refids = value;
+        equipment_api.update(curEquipment.value);
+    }    // keysmfst.value = value;
+}
 
 
 function createTreeFormOptions(message: any) {
@@ -290,6 +355,7 @@ function openCreateDrawer() {
 }
 
 function selectedTree(keys) {
+    debugger
     if (keys.length) {
         const treeItem = getTreeItem(unref(treeData), keys[0]);
         treeItemKey.value = keys;
@@ -368,14 +434,15 @@ async function addRoot() {
 
 async function refreshTree() {
     loading.value = true;
-    let equipment_list = await equipment_api.list();
+    let equipment_list = await equipment_api.list(null, true);
+
     const treeMenuList = generateTree(equipment_list.data.data);
     treeData.value = treeMenuList;
     loading.value = false;
 }
 
 function onTreeContainerResize({ width, height }) {
-    treeHeight.value = height - 22;
+    treeHeight.value = height - 20;
 }
 
 onMounted(async () => {
@@ -383,7 +450,7 @@ onMounted(async () => {
 
     nextTick(() => {
         if (treeContainer.value) {
-            treeHeight.value = treeContainer.value.clientHeight - 22;
+            treeHeight.value = treeContainer.value.clientHeight - 20;
         }
     });
 

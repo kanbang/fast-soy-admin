@@ -60,3 +60,6 @@
 <!-- 独立使用表单 -->
 - http://fast-crud.docmirror.cn/naive/#/crud/form/independent
 - https://github.com/fast-crud/fs-admin-naive-ui/blob/main/src/views/crud/form/independent/index.vue
+
+
+http://59.110.215.223:8000/

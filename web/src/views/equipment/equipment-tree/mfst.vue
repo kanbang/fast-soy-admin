@@ -4,7 +4,7 @@
  * @Author: zhai
  * @Date: 2024-06-10 19:30:05
  * @LastEditors: zhai
- * @LastEditTime: 2024-06-10 22:36:22
+ * @LastEditTime: 2024-06-15 20:35:26
 -->
 <template>
   <div class="h-full">
@@ -13,20 +13,32 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { CreateCrudOptionsProps, CreateCrudOptionsRet, ValueBuilderContext, useFs } from "@fast-crud/fast-crud";
 import type { AddReq, DelReq, EditReq, UserPageQuery, UserPageRes, ValueResolveContext } from '@fast-crud/fast-crud';
-import { dict } from '@fast-crud/fast-crud';
-import dayjs from 'dayjs';
-import { fast_mfst_api as api } from './api';
+import { fast_mfst_api as api } from '@/views/ifd/mfs/api';
+import { List } from "echarts/core";
 
-const selectedRowKeys = ref([]);
 
+interface Props {
+  selkeys: Array<number>;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  selkeys: []
+});
+
+// 初始化响应式状态
+const selectedRowKeys = ref(props.selkeys);
+
+// 监听props.selkeys
+watch(() => props.selkeys, (newVal) => {
+  selectedRowKeys.value = newVal;
+});
 
 const emit = defineEmits<{
-  (e: 'select-type', value: number | null): void;
+  (e: 'select-types', value: Array<number>): void;
 }>();
-
 
 
 function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
@@ -51,7 +63,7 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
   return {
     crudOptions: {
       container: {
-        is: 'fs-layout-card'
+        // is: 'fs-layout-card'
       },
       request: {
         pageRequest,
@@ -68,16 +80,16 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
             before: true,
             // handle: (pluginProps,useCrudProps)=>CrudOptions,
             props: {
-              multiple: false,
+              multiple: true,
               crossPage: true,
               selectedRowKeys,
               onSelectedChanged(selected) {
-
+                // props.selkeys.value = selected;
                 if (selected?.length > 0) {
-                  emit('select-type', selected[0]);
+                  emit('select-types', selected);
                 }
                 else {
-                  emit('select-type', null);
+                  emit('select-types', []);
                 }
 
                 console.log("已选择变化：", selected);
@@ -89,8 +101,14 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
       table: {
         striped: true
       },
+      toolbar: {
+        show: false,
+      },
+      actionbar: {
+        show: false,
+      },
       rowHandle: {
-        width: 150
+        show: false,
       },
       search: {
         show: false
@@ -100,25 +118,13 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
           draggable: false,
         }
       },
-      toolbar: {
-        buttons: {
-          search: {
-          },
-          compact: {
-            show: false,
-          }
-        }
-      },
       columns: {
-        // sel: {
-        //   type: 'selection',
-        //   multiple: false,
-        // },
         id: {
           title: 'ID',
           key: 'id',
           type: 'number',
           column: {
+            show: false,
             width: 50
           },
           form: {
