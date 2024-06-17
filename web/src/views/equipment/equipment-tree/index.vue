@@ -9,17 +9,15 @@
             <n-gi span="2">
                 <n-card class="h-full" :segmented="{ content: true }" :bordered="false" size="small">
                     <template #header>
-                        <n-space>
-                            <n-button type="info" ghost icon-placement="left" @click="addRoot">
-                                添加根节点
-                                <template #icon>
-                                    <div>
-                                        <icon-pajamas-file-tree />
-                                        <!-- <icon-mdi-emoticon class="text-24px text-red" /> -->
-                                    </div>
-                                </template>
-                            </n-button>
-                        </n-space>
+                        <n-button type="info" ghost icon-placement="left" @click="addRoot" size="small">
+                            添加根节点
+                            <template #icon>
+                                <div>
+                                    <icon-pajamas-file-tree />
+                                    <!-- <icon-mdi-emoticon class="text-24px text-red" /> -->
+                                </div>
+                            </template>
+                        </n-button>
                     </template>
                     <div class="h-full w-full menu flex flex-col">
                         <n-input v-model:value="pattern" placeholder="输入设备名称搜索">
@@ -71,12 +69,7 @@
             <n-gi span="3">
                 <n-card class="h-full" :segmented="{ content: true }" :bordered="false" size="small">
                     <template #header>
-                        <n-space>
-                            <n-icon size="18">
-                                <FormOutlined />
-                            </n-icon>
-                            <span>关联征兆现象{{ treeItemTitle ? `：${treeItemTitle} ` : '' }}</span>
-                        </n-space>
+                        关联征兆现象{{ treeItemTitle ? `：${treeItemTitle} ` : '' }}
                     </template>
 
                     <n-alert v-if="curEquipment == null" type="info" closable>
@@ -86,8 +79,6 @@
                         <mfst class="flex-grow" :selkeys="keysmfst" @select-types="onSelectMfst"> </mfst>
                         <mfpt class="flex-grow" :selkeys="keysmfpt" @select-types="onSelectMfpt"> </mfpt>
                     </n-flex>
-
-
                 </n-card>
             </n-gi>
         </n-grid>
@@ -480,6 +471,19 @@ onMounted(async () => {
 
 
 <style scoped>
+
+:deep(.n-card-header) {
+    height: 48px;
+}
+
+:deep(.fs-crud-header) {
+    display: none;
+}
+
+:deep(.fs-container) {
+    background-color: none;
+}
+
 .custom-tree-node {
     flex: 1;
     display: flex;

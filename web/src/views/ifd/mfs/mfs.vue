@@ -64,7 +64,7 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
   return {
     crudOptions: {
       container: {
-        is: 'fs-layout-card'
+        // is: 'fs-layout-card'
       },
       request: {
         pageRequest,

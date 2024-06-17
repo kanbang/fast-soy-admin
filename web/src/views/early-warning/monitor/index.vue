@@ -4,17 +4,15 @@
         <n-gi span="2">
             <n-card class="h-full" :segmented="{ content: true }" :bordered="false" size="small">
                 <template #header>
-                    <n-space>
-                        <n-button type="info" ghost icon-placement="left" @click="onStart">
-                            启动
-                            <template #icon>
-                                <div>
-                                    <icon-ic-outline-play-circle />
-                                    <!-- <icon-mdi-emoticon class="text-24px text-red" /> -->
-                                </div>
-                            </template>
-                        </n-button>
-                    </n-space>
+                    <n-button type="info" ghost icon-placement="left" size="small" @click="onStart">
+                        启动
+                        <template #icon>
+                            <div>
+                                <icon-ic-outline-play-circle />
+                                <!-- <icon-mdi-emoticon class="text-24px text-red" /> -->
+                            </div>
+                        </template>
+                    </n-button>
                 </template>
                 <div class="h-full w-full menu flex flex-col">
                     <n-input v-model:value="pattern" placeholder="输入设备名称搜索">
@@ -42,7 +40,7 @@
             </n-card>
         </n-gi>
         <n-gi span="3">
-            <n-card class="h-full" title="工况条件" :bordered="false">
+            <n-card class="h-full" title="工况条件" :bordered="false" :segmented="{ content: true }" size="small">
                 <template #header-extra>
                     数据每10秒更新一次
                 </template>
@@ -51,6 +49,7 @@
                     <div class="flex flex-row justify-between">
                         <n-statistic v-for="item in statisticData" :key="item.id" v-bind="item"></n-statistic>
                     </div>
+                    <n-divider />
                     <fs-crud class="flex-grow" ref="crudRef" v-bind="crudBinding">
                         <template #cell_comment="scope">
                             <n-tag :type="scope.row.comment == '正常' ? 'success' : 'error'">
@@ -403,9 +402,18 @@ onMounted(async () => {
 
 
 <style scoped>
+:deep(.n-card-header) {
+    height: 48px;
+}
+
 :deep(.fs-crud-footer) {
     display: none;
 }
+
+:deep(.fs-crud-header) {
+    display: none;
+}
+
 
 .custom-tree-node {
     flex: 1;

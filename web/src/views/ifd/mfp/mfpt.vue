@@ -4,7 +4,7 @@
  * @Author: zhai
  * @Date: 2024-06-10 19:30:05
  * @LastEditors: zhai
- * @LastEditTime: 2024-06-10 22:36:22
+ * @LastEditTime: 2024-06-17 21:59:43
 -->
 <template>
   <div class="h-full">
@@ -51,7 +51,7 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
   return {
     crudOptions: {
       container: {
-        is: 'fs-layout-card'
+        // is: 'fs-layout-card'
       },
       request: {
         pageRequest,

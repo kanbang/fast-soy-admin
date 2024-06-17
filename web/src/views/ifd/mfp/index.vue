@@ -3,12 +3,12 @@
 
         <n-grid class="flex-grow" cols="1 s:1 m:1 l:2 xl:2 2xl:2" responsive="screen" :x-gap="12">
             <n-gi span="1">
-                <n-card title="故障现象类型" class="h-full" size="small">
+                <n-card title="故障现象类型" class="h-full" size="small" :segmented="{ content: true }">
                     <mfpt @select-type="onSelectType"> </mfpt>
                 </n-card>
             </n-gi>
             <n-gi span="1">
-                <n-card title="故障现象" class="h-full" size="small">
+                <n-card title="故障现象" class="h-full" size="small" :segmented="{ content: true }">
                     <mfp :type_id="selectedType"> </mfp>
                 </n-card>
             </n-gi>
