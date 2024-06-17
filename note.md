@@ -56,6 +56,9 @@
 - https://github.com/fast-crud/fast-crud
 - https://github.com/mizhexiaoxiao/vue-fastapi-admin
 - https://unocss.dev/
+- https://tiven.cn/p/7886fb00/
+
+- https://www.tailwindcss.cn/docs/installation
 
 <!-- 独立使用表单 -->
 - http://fast-crud.docmirror.cn/naive/#/crud/form/independent

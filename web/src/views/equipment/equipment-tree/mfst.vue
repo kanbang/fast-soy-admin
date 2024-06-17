@@ -4,7 +4,7 @@
  * @Author: zhai
  * @Date: 2024-06-10 19:30:05
  * @LastEditors: zhai
- * @LastEditTime: 2024-06-15 20:35:26
+ * @LastEditTime: 2024-06-16 09:22:15
 -->
 <template>
   <div class="h-full">
@@ -132,7 +132,7 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
           }
         },
         name: {
-          title: '名称',
+          title: '故障征兆类型',
           type: 'text',
           search: { show: true },
           column: {

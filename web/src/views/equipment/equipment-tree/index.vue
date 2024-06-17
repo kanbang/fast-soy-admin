@@ -170,6 +170,8 @@ const nodeProps = ({ option }: { option: TreeOption }) => {
         onClick() {
             // message.info('[Click] ' + JSON.stringify(option))
             curEquipment.value = option;
+            treeItemTitle.value = option.name;
+
         },
         // onContextmenu(e: MouseEvent): void {
         //     optionsRef.value = [option]
@@ -324,12 +326,24 @@ async function editNode(option: any) {
 async function delNode(option: any) {
     // console.log(option)
 
-    let ret = await fast_equipment_api.DelObj(option.id);
-    if (!ret.error) {
-        message.success('删除成功');
-        await refreshTree();
-    }
+    dialog.info({
+        title: '提示',
+        content: `您确定想删除此节点吗?`,
+        positiveText: '确定',
+        negativeText: '取消',
+        onPositiveClick: async () => {
+            let ret = await fast_equipment_api.DelObj(option.id);
+            if (!ret.error) {
+                message.success('删除成功');
+                await refreshTree();
+            }
+        },
+        onNegativeClick: () => {
+            message.error('已取消');
+        },
+    });
 }
+
 /**
 *  找到对应的节点
 * */

@@ -131,7 +131,7 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
           }
         },
         name: {
-          title: '名称',
+          title: '故障现象类型',
           type: 'text',
           search: { show: true },
           column: {
