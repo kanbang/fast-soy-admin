@@ -19,8 +19,6 @@
 import { onMounted, ref, watch } from "vue";
 import { CreateCrudOptionsProps, CreateCrudOptionsRet, ValueBuilderContext, useFs } from "@fast-crud/fast-crud";
 import type { AddReq, DelReq, EditReq, UserPageQuery, UserPageRes, ValueResolveContext } from '@fast-crud/fast-crud';
-import { dict } from '@fast-crud/fast-crud';
-import dayjs from 'dayjs';
 import { fast_mfp_api as api } from './api';
 
 

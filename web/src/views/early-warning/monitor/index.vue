@@ -5,7 +5,7 @@
             <n-card class="h-full" :segmented="{ content: true }" :bordered="false" size="small">
                 <template #header>
                     <n-space>
-                        <n-button type="info" ghost icon-placement="left" @click="addRoot">
+                        <n-button type="info" ghost icon-placement="left" @click="onStart">
                             启动
                             <template #icon>
                                 <div>
@@ -34,7 +34,7 @@
                         <template v-else>
                             <n-tree :style="{ height: treeHeight + 'px' }" :virtual-scroll="true" block-line show-line
                                 :draggable="false" :show-irrelevant-nodes="false" :pattern="pattern" :data="treeData"
-                                key-field="id" label-field="name" :node-props="nodeProps">
+                                key-field="id" label-field="name" :node-props="treeNodeProps">
                             </n-tree>
                         </template>
                     </div>
@@ -48,42 +48,20 @@
                 </template>
 
                 <div class="flex flex-col h-full">
-
                     <div class="flex flex-row justify-between">
                         <n-statistic v-for="item in statisticData" :key="item.id" v-bind="item"></n-statistic>
                     </div>
-
-                    <fs-crud class="flex-grow" ref="crudRef" v-bind="crudBinding"> </fs-crud>
+                    <fs-crud class="flex-grow" ref="crudRef" v-bind="crudBinding">
+                        <template #cell_comment="scope">
+                            <n-tag :type="scope.row.comment == '正常' ? 'success' : 'error'">
+                                {{ scope.row.comment }}
+                            </n-tag>
+                        </template>
+                    </fs-crud>
                 </div>
-
-
-
             </n-card>
         </n-gi>
     </n-grid>
-
-
-    <!-- 
-                    <n-space :size="12" :wrap="false">
-                    </n-space> -->
-
-    <!-- <div flex items-center>
-                        <img rounded-full width="60" :src="userStore.avatar" />
-                        <div ml-10>
-                            <p text-20 font-semibold>
-                                {{ $t('views.workbench.text_hello', { username: userStore.name }) }}
-                            </p>
-                            <p mt-5 text-14 op-60>{{ $t('views.workbench.text_welcome') }}</p>
-                        </div>
-                    </div> -->
-    <!-- 
-                    <n-alert v-if="curEquipment == null" type="info" closable>
-                        从设备列表选择一项后，进行关联
-                    </n-alert>
-                    <n-flex v-else class="h-full">
-                        <mfst class="flex-grow" :selkeys="keysmfst" @select-types="onSelectMfst"> </mfst>
-                        <mfpt class="flex-grow" :selkeys="keysmfpt" @select-types="onSelectMfpt"> </mfpt>
-                    </n-flex> -->
 </template>
 <script lang="ts" setup>
 
@@ -102,7 +80,15 @@ const message = useMessage();
 const dialog = useDialog();
 
 
-const treeData = ref([]);
+
+interface ITreeItem {
+    id: number;
+    parent_id: number | null;
+    children?: ITreeItem[];
+}
+
+
+const treeData = ref<ITreeItem[]>([]);
 
 const loading = ref(true);
 const treeItemTitle = ref('');
@@ -111,12 +97,13 @@ const pattern = ref('');
 const treeHeight: Ref<number> = ref(0);
 const treeContainer: Ref<HTMLDivElement | null> = ref(null);
 
-const curEquipment = ref(null);
+const curEquipment = ref<TreeOption | null>(null);
 
-const nodeProps = ({ option }: { option: TreeOption }) => {
+const treeNodeProps = ({ option }: { option: TreeOption }) => {
     return {
         onClick() {
             curEquipment.value = option;
+            crudExpose.doRefresh();
         },
     }
 }
@@ -156,20 +143,25 @@ const formParams = reactive({
 
 
 
-function generateTree(items) {
-    const map = {};
-    const tree = [];
+function generateTree(items: ITreeItem[]): ITreeItem[] {
+    const map: { [key: number]: ITreeItem } = {};
+    const tree: ITreeItem[] = [];
 
+    // 建立 ID 到 item 的映射
     items.forEach(item => {
         map[item.id] = item;
     });
 
+    // 构建树结构
     items.forEach(item => {
         if (item.parent_id !== null && item.parent_id !== 0) {
-            if (!("children" in map[item.parent_id])) {
-                map[item.parent_id].children = [];
+            const parent = map[item.parent_id];
+            if (parent) {
+                if (!parent.children) {
+                    parent.children = [];
+                }
+                parent.children.push(map[item.id]);
             }
-            map[item.parent_id].children.push(map[item.id]);
         } else {
             tree.push(map[item.id]);
         }
@@ -179,48 +171,103 @@ function generateTree(items) {
 }
 
 
-/**
-*  找到对应的节点
-* */
-let result = null;
-function getTreeItem(data: any[], key?: string | number): any {
-    data.map((item) => {
-        if (item.key === key) {
-            result = item;
-        } else {
-            if (item.children && item.children.length) {
-                getTreeItem(item.children, key);
-            }
-        }
-    });
-    return result;
+async function refreshTree() {
+    loading.value = true;
+    let equipment_list = await equipment_api.list(null, true);
+
+    const tree = generateTree(equipment_list.data.data);
+    treeData.value = tree;
+    loading.value = false;
 }
 
-
-async function addRoot() {
-
+function onTreeContainerResize({ width, height }) {
+    treeHeight.value = height - 20;
 }
 
+async function onStart() {
+
+}
 
 
 function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
     const pageRequest = async (query: UserPageQuery): Promise<UserPageRes> => {
-        return api.GetList(query);
-    };
-    const editRequest = async (ctx: EditReq) => {
-        const { form, row } = ctx;
-        form.id = row.id;
-        return api.UpdateObj(form);
-    };
-    const delRequest = async (ctx: DelReq) => {
-        const { row } = ctx;
-        return api.DelObj(row.id);
+
+        let demodata = [
+            {
+                "index": 1,
+                "parameter": "1号轴承1号金属温度（炉侧）",
+                "unit": "°C",
+                "value": 54.84,
+                "lower_limit": 55,
+                "upper_limit": 55,
+                "comment": "偏低",
+                "warning": "查询"
+            },
+            {
+                "index": 2,
+                "parameter": "1号轴承2号金属温度（靠侧）",
+                "unit": "°C",
+                "value": null,
+                "lower_limit": 0,
+                "upper_limit": 99,
+                "comment": "正常",
+                "warning": "查询"
+            },
+            {
+                "index": 3,
+                "parameter": "1号轴径振动（X方向）",
+                "unit": "μm",
+                "value": 47.95,
+                "lower_limit": 0,
+                "upper_limit": 120,
+                "comment": "正常",
+                "warning": "查询"
+            },
+            {
+                "index": 4,
+                "parameter": "1号轴径振动（Y方向）",
+                "unit": "μm",
+                "value": 47.95,
+                "lower_limit": 0,
+                "upper_limit": 48,
+                "comment": "偏低",
+                "warning": "查询"
+            },
+            {
+                "index": 5,
+                "parameter": "2号轴承1号金属温度（炉侧）",
+                "unit": "°C",
+                "value": 89.7,
+                "lower_limit": 0,
+                "upper_limit": 99,
+                "comment": "正常",
+                "warning": "查询"
+            },
+            {
+                "index": 6,
+                "parameter": "2号轴承2号金属温度（靠侧）",
+                "unit": "°C",
+                "value": 47.95,
+                "lower_limit": 0,
+                "upper_limit": 99,
+                "comment": "正常",
+                "warning": "查询"
+            }
+        ];
+
+        return {
+            code: 0, data: {
+                data: demodata,
+                meta: {
+                    total: 6
+                }
+            }
+        };
     };
 
-    const addRequest = async (req: AddReq) => {
-        const { form } = req;
-        return api.AddObj(form);
-    };
+    const editRequest = async (ctx: EditReq) => { };
+    const delRequest = async (ctx: DelReq) => { };
+    const addRequest = async (req: AddReq) => { };
 
     return {
         crudOptions: {
@@ -266,17 +313,18 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
                     type: 'number',
                     column: {
                         show: false,
-                        width: 50
                     },
                     form: {
                         show: false
                     }
                 },
 
-
                 parameter: {
                     title: '参数',
                     type: 'text',
+                    column: {
+                        width: 260,
+                    },
                 },
                 unit: {
                     title: '单位',
@@ -286,14 +334,24 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
                     title: '实时值',
                     type: 'text',
                 },
-                lowerbound: {
+                lower_limit: {
                     title: '下限',
                     type: 'text',
                 },
-                upperbound: {
+                upper_limit: {
                     title: '上限',
                     type: 'text',
                 },
+
+                // <n-tag type="success">
+                //   不该
+                // </n-tag>
+                // <n-tag type="warning">
+                //   超人不会飞
+                // </n-tag>
+                // <n-tag type="error">
+                //   手写的从前
+                // </n-tag>
                 comment: {
                     title: '评语',
                     type: 'text',
@@ -303,12 +361,17 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
                     type: 'button',
                     column: {
                         component: {
-                            type: 'success',
-                            size: 'small',
-                            show: compute(({ value }) => {
-                                //当value为null时，不显示
-                                return value != null;
+                            type: compute(({ row, value }) => {
+                                return row.comment == "正常" ? "tertiary" : "success";
                             }),
+                            size: 'small',
+                            disabled: compute(({ row, value }) => {
+                                return row.comment == "正常";
+                            }),
+
+                            // show: compute(({ value }) => {
+                            //     return value != null;
+                            // }),
                             on: {
                                 onClick({ row }) {
                                     message.success('按钮点击:' + row.warning);
@@ -324,44 +387,6 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
 
 const { crudRef, crudBinding, crudExpose } = useFs({ createCrudOptions });
 
-// 页面打开后获取列表数据
-onMounted(() => {
-    crudExpose.doRefresh();
-});
-
-// function createData(level = 4, baseKey = ''): TreeOption[] | undefined {
-//     if (!level) return undefined
-//     return repeat(6 - level, undefined).map((_, index) => {
-//         const key = '' + baseKey + level + index
-//         const label = createLabel(level)
-//         return {
-//             label,
-//             key,
-//             children: createData(level - 1, key),
-//             suffix: () =>
-//                 h(
-//                     NButton,
-//                     { text: true, type: 'primary' },
-//                     { default: () => 'Suffix' }
-//                 ),
-//             prefix: () =>
-//                 h(NButton, { text: true, type: 'primary' }, { default: () => 'Prefix' })
-//         }
-//     })
-// }
-
-async function refreshTree() {
-    loading.value = true;
-    let equipment_list = await equipment_api.list(null, true);
-
-    const treeMenuList = generateTree(equipment_list.data.data);
-    treeData.value = treeMenuList;
-    loading.value = false;
-}
-
-function onTreeContainerResize({ width, height }) {
-    treeHeight.value = height - 20;
-}
 
 onMounted(async () => {
     await refreshTree();
@@ -371,12 +396,6 @@ onMounted(async () => {
             treeHeight.value = treeContainer.value.clientHeight - 20;
         }
     });
-
-    // const keys = treeMenuList.map((item) => item.id);
-    // Object.assign(formParams, keys);
-
-    // treeData.value = treeMenuList;
-    // loading.value = false;
 });
 
 
