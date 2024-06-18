@@ -30,9 +30,10 @@
                             </div>
                         </template>
                         <template v-else>
-                            <n-tree :style="{ height: treeHeight + 'px' }" :virtual-scroll="true" block-line show-line
-                                :draggable="false" :show-irrelevant-nodes="false" :pattern="pattern" :data="treeData"
-                                key-field="id" label-field="name" :node-props="treeNodeProps">
+                            <n-tree :style="{ height: treeHeight + 'px' }" :virtual-scroll="true" default-expand-all
+                                block-line show-line :draggable="false" :show-irrelevant-nodes="false"
+                                :pattern="pattern" :data="treeData" key-field="id" label-field="name"
+                                :node-props="treeNodeProps">
                             </n-tree>
                         </template>
                     </div>
