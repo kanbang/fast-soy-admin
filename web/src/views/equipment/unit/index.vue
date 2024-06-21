@@ -10,7 +10,7 @@ import { CreateCrudOptionsProps, CreateCrudOptionsRet, useFs } from "@fast-crud/
 import type { AddReq, DelReq, EditReq, UserPageQuery, UserPageRes } from '@fast-crud/fast-crud';
 import { dict } from '@fast-crud/fast-crud';
 import dayjs from 'dayjs';
-import * as api from './api';
+import { fast_unit_api as api } from '@/service/api/ifd'
 
 function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
   const pageRequest = async (query: UserPageQuery): Promise<UserPageRes> => {

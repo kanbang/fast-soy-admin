@@ -23,6 +23,7 @@ import { useDialog, useMessage } from 'naive-ui';
 import { useColumns, useFormWrapper } from '@fast-crud/fast-crud';
 import mfst from './mfst.vue';
 import mfs from './mfs.vue';
+import { fast_equipment_api } from '@/service/api/ifd';
 
 
 const { openDialog } = useFormWrapper();
@@ -282,7 +283,7 @@ async function addRoot() {
 
 async function refreshTree() {
     loading.value = true;
-    let equipment_list = await equipment_api.list();
+    let equipment_list = await fast_equipment_api.list();
     const treeMenuList = generateTree(equipment_list.data.data);
     treeData.value = treeMenuList;
     loading.value = false;

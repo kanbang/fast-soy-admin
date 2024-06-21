@@ -69,8 +69,7 @@
 import { ref, unref, reactive, onMounted, computed, Ref, nextTick } from 'vue';
 import { TreeOption, useDialog, useMessage } from 'naive-ui';
 import { AddReq, CreateCrudOptionsProps, CreateCrudOptionsRet, DelReq, EditReq, UserPageQuery, UserPageRes, compute, useColumns, useFormWrapper, useFs } from '@fast-crud/fast-crud';
-import { equipment_api, fast_equipment_api } from './api'
-import { fast_mfst_api as api } from '@/views/ifd/mfs/api';
+import { fast_mfst_api, fast_equipment_api } from '@/service/api/ifd';
 
 import { $t } from '@/locales';
 

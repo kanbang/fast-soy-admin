@@ -18,7 +18,7 @@ import { CreateCrudOptionsProps, CreateCrudOptionsRet, ValueBuilderContext, useF
 import type { AddReq, DelReq, EditReq, UserPageQuery, UserPageRes, ValueResolveContext } from '@fast-crud/fast-crud';
 import { dict } from '@fast-crud/fast-crud';
 import dayjs from 'dayjs';
-import { fast_mfpt_api as api } from './api';
+import { fast_mfpt_api as api } from '@/service/api/ifd';
 
 const selectedRowKeys = ref([]);
 

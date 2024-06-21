@@ -1,5 +1,5 @@
 import type { UserPageQuery } from '@fast-crud/fast-crud';
-import { Singleton } from './crud-api';
+import { CrudApi, Singleton } from './crud-api';
 
 
 type DictObject = { [key: string]: any };
@@ -18,10 +18,12 @@ function removeEmptyValues(obj: DictObject): DictObject {
     return newObj;
 }
 
-export class FastCrudApi<T = object> {
-    api: object | any = null;
-    constructor(crud_api: object) {
-        this.api = crud_api;
+
+
+export class FastCrudApi<CLS, T = object | undefined> extends CrudApi<CLS> {
+
+    constructor(prefix: string) {
+        super(prefix);
     }
 
     async GetList(query: UserPageQuery) {
@@ -57,23 +59,23 @@ export class FastCrudApi<T = object> {
 
         let str = params.toString();
 
-        return await this.api.query(removeEmptyValues(query.query), str);
+        return await this.query(removeEmptyValues(query.query), str);
     }
 
     async AddObj(obj: T) {
-        return await this.api.create(obj);
+        return await this.create(obj);
     }
 
     async UpdateObj(obj: T) {
-        return await this.api.update(obj);
+        return await this.update(obj);
     }
 
     async DelObj(id: number) {
-        return await this.api.delete(id);
+        return await this.delete(id);
     }
 
     async GetObj(id: number) {
-        return await this.api.get_by_id(id);
+        return await this.get_by_id(id);
     }
 
     async BatchDelete(ids: number[]) {

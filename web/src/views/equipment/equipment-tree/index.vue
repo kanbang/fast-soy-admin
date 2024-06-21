@@ -97,9 +97,9 @@ import { TreeOption, useDialog, useMessage } from 'naive-ui';
 import CreateDrawer from './CreateDrawer.vue';
 import { XNTree } from '@skit/x.naive-ui';
 import { useColumns, useFormWrapper } from '@fast-crud/fast-crud';
-import { equipment_api, fast_equipment_api } from './api'
 import mfst from './mfst.vue';
 import mfpt from './mfpt.vue';
+import { fast_equipment_api } from '@/service/api/ifd'
 
 const { openDialog } = useFormWrapper();
 
@@ -180,7 +180,7 @@ function onSelectMfst(value: Array<number>) {
     console.log(value);
     if (curEquipment.value) {
         curEquipment.value.mfsts_refids = value;
-        equipment_api.update(curEquipment.value);
+        fast_equipment_api.update(curEquipment.value);
     }    // keysmfst.value = value;
 }
 
@@ -188,7 +188,7 @@ function onSelectMfpt(value: Array<number>) {
     console.log(value);
     if (curEquipment.value) {
         curEquipment.value.mfpts_refids = value;
-        equipment_api.update(curEquipment.value);
+        fast_equipment_api.update(curEquipment.value);
     }    // keysmfst.value = value;
 }
 
@@ -439,7 +439,7 @@ async function addRoot() {
 
 async function refreshTree() {
     loading.value = true;
-    let equipment_list = await equipment_api.list(null, true);
+    let equipment_list = await fast_equipment_api.list(null, true);
 
     const treeMenuList = generateTree(equipment_list.data.data);
     treeData.value = treeMenuList;
@@ -471,7 +471,6 @@ onMounted(async () => {
 
 
 <style scoped>
-
 :deep(.n-card-header) {
     height: 48px;
 }

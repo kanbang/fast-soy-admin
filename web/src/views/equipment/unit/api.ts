@@ -11,21 +11,6 @@ export type DemoRecord = {
 };
 
 
-
-export class UnitApi extends CrudApi<UnitApi> {
-  constructor() {
-    super("unit");
-  }
-
-  export_csv(id?: string) {
-    return request({
-      url: `/${this.prefix}/export_csv/${id}`,
-      method: 'GET',
-      responseType: "blob"
-    });
-  }
-}
-
 const api =  UnitApi.instance();
 
 type AnyObject = { [key: string]: any };

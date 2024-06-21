@@ -19,7 +19,7 @@
 import { onMounted, ref, watch } from "vue";
 import { CreateCrudOptionsProps, CreateCrudOptionsRet, ValueBuilderContext, useFs } from "@fast-crud/fast-crud";
 import type { AddReq, DelReq, EditReq, UserPageQuery, UserPageRes, ValueResolveContext } from '@fast-crud/fast-crud';
-import { fast_mfp_api as api } from './api';
+import { fast_mfp_api as api } from '@/service/api/ifd';
 
 
 interface Props {
