@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 0.x
+ * @Author: zhai
+ * @Date: 2024-06-21 19:42:39
+ * @LastEditors: zhai
+ * @LastEditTime: 2024-06-21 20:01:57
+ */
 import { CrudApi } from "../crud-api";
 import { FastCrudApi } from "../fast-crud-api";
 
@@ -65,20 +73,19 @@ export const fast_mfp_api = FastMfpApi.instance();
 
 export class FastMfstApi extends FastCrudApi<FastMfstApi> {
     constructor() {
-      super("mfst");
+        super("mfst");
     }
-  }
-  
-  export const fast_mfst_api = FastMfstApi.instance();
-  
-  
-  //////////////////////////////////////////////////////////////////////
-  export class FastMfsApi extends FastCrudApi<FastMfsApi> {
+}
+
+export const fast_mfst_api = FastMfstApi.instance();
+
+
+//////////////////////////////////////////////////////////////////////
+export class FastMfsApi extends FastCrudApi<FastMfsApi> {
     constructor() {
-      super("mfs");
+        super("mfs");
     }
-  }
-  
-  export const fast_mfs_api = FastMfsApi.instance();
-  
-  
+}
+
+export const fast_mfs_api = FastMfsApi.instance();
+

@@ -31,9 +31,9 @@
                         </template>
                         <template v-else>
                             <n-tree :style="{ height: treeHeight + 'px' }" :virtual-scroll="true" default-expand-all
-                                block-line show-line :draggable="false" :show-irrelevant-nodes="false"
-                                :pattern="pattern" :data="treeData" key-field="id" label-field="name"
-                                :node-props="treeNodeProps">
+                                :default-selected-keys="selectedItem" block-line show-line :draggable="false"
+                                :show-irrelevant-nodes="false" :pattern="pattern" :data="treeData" key-field="id"
+                                label-field="name" :node-props="treeNodeProps">
                             </n-tree>
                         </template>
                     </div>
@@ -72,6 +72,7 @@ import { AddReq, CreateCrudOptionsProps, CreateCrudOptionsRet, DelReq, EditReq, 
 import { fast_mfst_api, fast_equipment_api } from '@/service/api/ifd';
 
 import { $t } from '@/locales';
+import { useRoute } from 'vue-router';
 
 const { openDialog } = useFormWrapper();
 
@@ -90,13 +91,17 @@ interface ITreeItem {
 const treeData = ref<ITreeItem[]>([]);
 
 const loading = ref(true);
-const treeItemTitle = ref('');
 const pattern = ref('');
+
+const selectedItem = ref([]);
+
+
+const curEquipment = ref<TreeOption | null>(null);
+
 
 const treeHeight: Ref<number> = ref(0);
 const treeContainer: Ref<HTMLDivElement | null> = ref(null);
 
-const curEquipment = ref<TreeOption | null>(null);
 
 const treeNodeProps = ({ option }: { option: TreeOption }) => {
     return {
@@ -107,6 +112,11 @@ const treeNodeProps = ({ option }: { option: TreeOption }) => {
     }
 }
 
+const route = useRoute();
+
+const routeQuery = computed(() => JSON.stringify(route.query));
+
+
 const statisticData = ref([
     {
         id: 0,
@@ -115,17 +125,17 @@ const statisticData = ref([
     },
     {
         id: 1,
-        label: $t('有功功率'),
+        label: ('有功功率'),
         value: '17MV',
     },
     {
         id: 2,
-        label: $t('环境温度'),
+        label: ('环境温度'),
         value: '5℃',
     },
     {
         id: 3,
-        label: $t('汽机转速'),
+        label: ('汽机转速'),
         value: '3000rpm',
     },
 ]);
@@ -141,28 +151,29 @@ const formParams = reactive({
 });
 
 
+let treeItemMap: { [key: number]: ITreeItem } = {};
 
 function generateTree(items: ITreeItem[]): ITreeItem[] {
-    const map: { [key: number]: ITreeItem } = {};
+    treeItemMap = {};
     const tree: ITreeItem[] = [];
 
     // 建立 ID 到 item 的映射
     items.forEach(item => {
-        map[item.id] = item;
+        treeItemMap[item.id] = item;
     });
 
     // 构建树结构
     items.forEach(item => {
         if (item.parent_id !== null && item.parent_id !== 0) {
-            const parent = map[item.parent_id];
+            const parent = treeItemMap[item.parent_id];
             if (parent) {
                 if (!parent.children) {
                     parent.children = [];
                 }
-                parent.children.push(map[item.id]);
+                parent.children.push(treeItemMap[item.id]);
             }
         } else {
-            tree.push(map[item.id]);
+            tree.push(treeItemMap[item.id]);
         }
     });
 
@@ -172,11 +183,13 @@ function generateTree(items: ITreeItem[]): ITreeItem[] {
 
 async function refreshTree() {
     loading.value = true;
-    let equipment_list = await equipment_api.list(null, true);
+    let equipment_list = await fast_equipment_api.list(null, true);
 
     const tree = generateTree(equipment_list.data.data);
     treeData.value = tree;
     loading.value = false;
+
+
 }
 
 function onTreeContainerResize({ width, height }) {
@@ -388,11 +401,25 @@ const { crudRef, crudBinding, crudExpose } = useFs({ createCrudOptions });
 
 
 onMounted(async () => {
+    // message.info(route.params   );
+    // message.info(JSON.stringify(route.query));
+
+    let selected_id = null;
+    if ("id" in route.query) {
+        selected_id = +route.query.id;
+        selectedItem.value = [selected_id];
+    }
+
     await refreshTree();
 
     nextTick(() => {
         if (treeContainer.value) {
             treeHeight.value = treeContainer.value.clientHeight - 20;
+        }
+
+        if (selected_id != null && selected_id in treeItemMap) {
+            curEquipment.value = treeItemMap[selected_id];
+            crudExpose.doRefresh();
         }
     });
 });

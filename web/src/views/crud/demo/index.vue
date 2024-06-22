@@ -76,9 +76,9 @@ function createCrudOptions({crudExpose}: CreateCrudOptionsProps): CreateCrudOpti
           title: '状态',
           search: { show: true },
           type: 'dict-select',
-          dict: dict({
-            url: '/mock/crud/demo/dict'
-          })
+          // dict: dict({
+          //   url: '/mock/crud/demo/dict'
+          // })
         },
         text: {
           title: '文本',
