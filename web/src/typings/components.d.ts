@@ -19,6 +19,7 @@ declare module 'vue' {
     IconAntDesignSettingOutlined: typeof import('~icons/ant-design/setting-outlined')['default']
     'IconCodicon:runCoverage': typeof import('~icons/codicon/run-coverage')['default']
     'IconCodicon:runErrors': typeof import('~icons/codicon/run-errors')['default']
+    'IconEp:aim': typeof import('~icons/ep/aim')['default']
     IconGridiconsFullscreen: typeof import('~icons/gridicons/fullscreen')['default']
     IconGridiconsFullscreenExit: typeof import('~icons/gridicons/fullscreen-exit')['default']
     'IconIc:roundPlus': typeof import('~icons/ic/round-plus')['default']

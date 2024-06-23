@@ -17,7 +17,10 @@ import {
   TitleComponent,
   ToolboxComponent,
   TooltipComponent,
-  TransformComponent
+  TransformComponent,
+  MarkLineComponent,
+  VisualMapComponent,
+  DataZoomComponent
 } from 'echarts/components';
 import type {
   DatasetComponentOption,
@@ -25,7 +28,10 @@ import type {
   LegendComponentOption,
   TitleComponentOption,
   ToolboxComponentOption,
-  TooltipComponentOption
+  TooltipComponentOption,
+  MarkLineComponentOption,
+  VisualMapComponentOption,
+  DataZoomComponentOption
 } from 'echarts/components';
 import { LabelLayout, UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
@@ -46,6 +52,9 @@ export type ECOption = echarts.ComposeOption<
   | GridComponentOption
   | ToolboxComponentOption
   | DatasetComponentOption
+  | MarkLineComponentOption
+  | VisualMapComponentOption
+  | DataZoomComponentOption
 >;
 
 echarts.use([
@@ -65,7 +74,10 @@ echarts.use([
   GaugeChart,
   LabelLayout,
   UniversalTransition,
-  CanvasRenderer
+  CanvasRenderer,
+  MarkLineComponent,
+  VisualMapComponent,
+  DataZoomComponent
 ]);
 
 interface ChartHooks {

@@ -1,67 +1,153 @@
 <template>
+    <div>
 
-    <n-grid cols="1 s:1 m:1 l:5 xl:5 2xl:5" responsive="screen" :x-gap="12">
-        <n-gi span="2">
-            <n-card class="h-full" :segmented="{ content: true }" :bordered="false" size="small">
-                <template #header>
-                    <n-button type="info" ghost icon-placement="left" size="small" @click="onStart">
-                        启动
-                        <template #icon>
-                            <div>
-                                <icon-ic-outline-play-circle />
-                                <!-- <icon-mdi-emoticon class="text-24px text-red" /> -->
-                            </div>
-                        </template>
+        <n-grid cols="1 s:1 m:1 l:5 xl:5 2xl:5" responsive="screen" :x-gap="12">
+            <n-gi span="2">
+                <n-card class="h-full" :segmented="{ content: true }" :bordered="false" size="small">
+                    <template #header>
+                        <n-button type="info" ghost icon-placement="left" size="small" @click="onStart">
+                            启动
+                            <template #icon>
+                                <div>
+                                    <icon-ic-outline-play-circle />
+                                    <!-- <icon-mdi-emoticon class="text-24px text-red" /> -->
+                                </div>
+                            </template>
+                        </n-button>
+                    </template>
+                    <div class="h-full w-full menu flex flex-col">
+                        <n-input v-model:value="pattern" placeholder="输入设备名称搜索">
+                            <template #suffix>
+                                <n-icon size="18" class="cursor-pointer">
+                                    <SearchOutlined />
+                                </n-icon>
+                            </template>
+                        </n-input>
+                        <div ref="treeContainer" v-resize="onTreeContainerResize" style="height: 1px;"
+                            class="py-3 flex-grow overflow-hidden">
+                            <template v-if="loading">
+                                <div class="flex items-center justify-center py-4">
+                                    <n-spin size="medium" />
+                                </div>
+                            </template>
+                            <template v-else>
+                                <n-tree :style="{ height: treeHeight + 'px' }" :virtual-scroll="true" default-expand-all
+                                    :default-selected-keys="selectedItem" block-line show-line :draggable="false"
+                                    :show-irrelevant-nodes="false" :pattern="pattern" :data="treeData" key-field="id"
+                                    label-field="name" :node-props="treeNodeProps">
+                                </n-tree>
+                            </template>
+                        </div>
+                    </div>
+                </n-card>
+            </n-gi>
+            <n-gi span="3">
+                <n-card class="h-full" title="工况条件" :bordered="false" :segmented="{ content: true }" size="small">
+                    <template #header-extra>
+                        数据每10秒更新一次
+                    </template>
+
+                    <div class="flex flex-col h-full">
+                        <div class="flex flex-row justify-between">
+                            <n-statistic v-for="item in statisticData" :key="item.id" v-bind="item"></n-statistic>
+                        </div>
+                        <n-divider />
+                        <fs-crud class="flex-grow" ref="crudRef" v-bind="crudBinding">
+                            <!-- <template #cell_comment="scope">
+                                <n-tag :type="scope.row.comment == '正常' ? 'success' : 'error'" @click="alert('')">
+                                    {{ scope.row.comment }}
+                                </n-tag>
+                            </template> -->
+                        </fs-crud>
+                    </div>
+                </n-card>
+            </n-gi>
+        </n-grid>
+        <n-modal v-model:show="showModal" preset="card" title="历史数据" style="width: 80%; height: 90%">
+            <n-flex justify="center" class="mb-8px">
+                <n-input-group style="justify-content: center">
+                    <n-button type="primary">
+                        时间范围
                     </n-button>
-                </template>
-                <div class="h-full w-full menu flex flex-col">
-                    <n-input v-model:value="pattern" placeholder="输入设备名称搜索">
-                        <template #suffix>
-                            <n-icon size="18" class="cursor-pointer">
-                                <SearchOutlined />
-                            </n-icon>
-                        </template>
-                    </n-input>
-                    <div ref="treeContainer" v-resize="onTreeContainerResize" style="height: 1px;"
-                        class="py-3 flex-grow overflow-hidden">
-                        <template v-if="loading">
-                            <div class="flex items-center justify-center py-4">
-                                <n-spin size="medium" />
-                            </div>
-                        </template>
-                        <template v-else>
-                            <n-tree :style="{ height: treeHeight + 'px' }" :virtual-scroll="true" default-expand-all
-                                :default-selected-keys="selectedItem" block-line show-line :draggable="false"
-                                :show-irrelevant-nodes="false" :pattern="pattern" :data="treeData" key-field="id"
-                                label-field="name" :node-props="treeNodeProps">
-                            </n-tree>
-                        </template>
-                    </div>
-                </div>
-            </n-card>
-        </n-gi>
-        <n-gi span="3">
-            <n-card class="h-full" title="工况条件" :bordered="false" :segmented="{ content: true }" size="small">
-                <template #header-extra>
-                    数据每10秒更新一次
-                </template>
+                    <n-date-picker v-model:value="range" type="daterange" clearable />
+                    <n-button type="primary" ghost>
+                        搜索
+                    </n-button>
+                </n-input-group>
+            </n-flex>
 
-                <div class="flex flex-col h-full">
-                    <div class="flex flex-row justify-between">
-                        <n-statistic v-for="item in statisticData" :key="item.id" v-bind="item"></n-statistic>
+            <LineChart style="width: 100%; height:300px" />
+            <n-divider />
+            <PieChart style="width: 100%; height: 300px" />
+        </n-modal>
+
+
+        <n-modal v-model:show="showTip" preset="card" title="轴向位移2A偏高" style="width: 50%; height: 90%">
+            <n-flex justify="center" class="mb-8px">
+                <n-card title="可能的故障" size="small" :bordered="false">
+                    <div class="tip-container">
+                        <p>
+                            <icon-ep:aim /> 主蒸汽参数、真空、机组负荷大幅度波动，造成轴向推力增加
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 汽轮机水冲击
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 推力瓦块乌金磨损，润滑油压过低或油温过高使油膜破坏
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 通流部分结垢、断叶片或漏汽严重，造成轴向推力增加
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 平衡鼓、汽封片磨损
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 抽汽运行方式发生变化
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 转子窜动
+                        </p>
                     </div>
-                    <n-divider />
-                    <fs-crud class="flex-grow" ref="crudRef" v-bind="crudBinding">
-                        <template #cell_comment="scope">
-                            <n-tag :type="scope.row.comment == '正常' ? 'success' : 'error'">
-                                {{ scope.row.comment }}
-                            </n-tag>
-                        </template>
-                    </fs-crud>
-                </div>
-            </n-card>
-        </n-gi>
-    </n-grid>
+                </n-card>
+                <n-card title="可能的维护措施" size="small" :bordered="false">
+                    <div class="tip-container">
+                        <p>
+                            <icon-ep:aim /> 发现轴向位移增大时，应检查负荷、蒸汽参数、轴封汽温度、真空、润滑油温、推力瓦块温度、差胀等的变化，并设法调整，必要时通知热工校表
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 汽温、汽压降低时，通知锅炉提高进汽参数，并适当减少负荷使轴向位移降低
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 当轴向位移上升至报警值，汇报值长，采取降低负荷或适当调整抽汽运行方式使之下降至正常
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 当轴向位移上升并伴有不正常的响声，机组剧烈振动，应破坏真空紧急停机
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 汽轮机发生水冲击，应破坏真空紧急停机
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 如因叶片结垢严重使轴向位移增大时，汇报值长适当降低负荷，使轴向位移恢复至正常
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 轴向位移升至跳阐时，机组应自动跳闸，否则应紧急故障停机
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 轴向位移增大时，推力瓦块温度异常升高，任意一块瓦温升高至90°C时，减负荷;如升高至107°C时，应破坏真空紧急停机
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 机组升降负荷过程中，加强对振动等参数监视，保证蒸汽参数与负荷、缸温相匹配防止负荷 蒸汽参数大幅度变动保证汽水品质合格
+                        </p>
+                        <p>
+                            <icon-ep:aim /> 加强对高/低加热器、除氧器运行监视，确保水位正常
+                        </p>
+                    </div>
+
+                </n-card>
+            </n-flex>
+        </n-modal>
+
+    </div>
 </template>
 <script lang="ts" setup>
 
@@ -79,6 +165,8 @@ const { openDialog } = useFormWrapper();
 const message = useMessage();
 const dialog = useDialog();
 
+const showModal = ref(false);
+const showTip = ref(false);
 
 
 interface ITreeItem {
@@ -102,6 +190,8 @@ const curEquipment = ref<TreeOption | null>(null);
 const treeHeight: Ref<number> = ref(0);
 const treeContainer: Ref<HTMLDivElement | null> = ref(null);
 
+import LineChart from './line-chart.vue';
+import PieChart from './pie-chart.vue';
 
 const treeNodeProps = ({ option }: { option: TreeOption }) => {
     return {
@@ -366,7 +456,25 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
                 // </n-tag>
                 comment: {
                     title: '评语',
-                    type: 'text',
+                    // type: 'text',
+                    type: 'button',
+                    column: {
+                        component: {
+                            type: compute(({ row, value }) => {
+                                return row.comment == "正常" ? "success" : "error";
+                            }),
+                            size: 'small',
+                            disabled: compute(({ row, value }) => {
+                                return row.comment == "正常";
+                            }),
+                            on: {
+                                onClick({ row }) {
+                                    // message.success('按钮点击:' + row.warning);
+                                    showTip.value = true;
+                                },
+                            },
+                        },
+                    },
                 },
                 warning: {
                     title: '故障预警',
@@ -386,7 +494,8 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
                             // }),
                             on: {
                                 onClick({ row }) {
-                                    message.success('按钮点击:' + row.warning);
+                                    // message.success('按钮点击:' + row.warning);
+                                    showModal.value = true;
                                 },
                             },
                         },
@@ -441,6 +550,15 @@ onMounted(async () => {
     display: none;
 }
 
+.tip-container p {
+    margin-bottom: 0.5em;
+    /* 段落间距 */
+}
+
+.tip-container p:last-child {
+    margin-bottom: 0;
+    /* 移除最后一个段落的间距 */
+}
 
 .custom-tree-node {
     flex: 1;

@@ -65,4 +65,18 @@
 - https://github.com/fast-crud/fs-admin-naive-ui/blob/main/src/views/crud/form/independent/index.vue
 
 
+https://uno.antfu.me/play/
+
+
 http://59.110.215.223:8000/
+
+
+东北电力大学
+
+超：知识系统
+王仲：只能诊断、推理
+
+机组-征兆
+设备-征兆-类别
+
+首页：知识、预警
