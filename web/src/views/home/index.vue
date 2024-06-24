@@ -178,7 +178,7 @@ async function refreshTree() {
   
   let tree = await foxRequest<any, 'json'>({
     url: "/api/ft_alarm/mainStage",
-    method: 'get',
+    method: 'post',
   });
 
 

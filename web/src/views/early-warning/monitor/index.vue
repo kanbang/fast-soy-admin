@@ -1,7 +1,7 @@
 <template>
     <div>
 
-        <n-grid cols="1 s:1 m:1 l:5 xl:5 2xl:5" responsive="screen" :x-gap="12">
+        <n-grid class="h-full" cols="1 s:1 m:1 l:5 xl:5 2xl:5" responsive="screen" :x-gap="12">
             <n-gi span="2">
                 <n-card class="h-full" :segmented="{ content: true }" :bordered="false" size="small">
                     <template #header>
@@ -33,7 +33,7 @@
                             <template v-else>
                                 <n-tree :style="{ height: treeHeight + 'px' }" :virtual-scroll="true" default-expand-all
                                     :default-selected-keys="selectedItem" block-line show-line :draggable="false"
-                                    :show-irrelevant-nodes="false" :pattern="pattern" :data="treeData" key-field="id"
+                                    :show-irrelevant-nodes="false" :pattern="pattern" :data="treeData" key-field="name"
                                     label-field="name" :node-props="treeNodeProps">
                                 </n-tree>
                             </template>
@@ -156,6 +156,7 @@ import { ref, unref, reactive, onMounted, computed, Ref, nextTick } from 'vue';
 import { TreeOption, useDialog, useMessage } from 'naive-ui';
 import { AddReq, CreateCrudOptionsProps, CreateCrudOptionsRet, DelReq, EditReq, UserPageQuery, UserPageRes, compute, useColumns, useFormWrapper, useFs } from '@fast-crud/fast-crud';
 import { fast_mfst_api, fast_equipment_api } from '@/service/api/ifd';
+import { request, foxRequest, demoRequest } from '@/service/request';
 
 import { $t } from '@/locales';
 import { useRoute } from 'vue-router';
@@ -243,43 +244,47 @@ const formParams = reactive({
 
 let treeItemMap: { [key: number]: ITreeItem } = {};
 
-function generateTree(items: ITreeItem[]): ITreeItem[] {
-    treeItemMap = {};
-    const tree: ITreeItem[] = [];
+// "equipmentList01": [
+//         {
+//             "equipID": "高压缸",
 
-    // 建立 ID 到 item 的映射
-    items.forEach(item => {
-        treeItemMap[item.id] = item;
-    });
-
-    // 构建树结构
-    items.forEach(item => {
-        if (item.parent_id !== null && item.parent_id !== 0) {
-            const parent = treeItemMap[item.parent_id];
-            if (parent) {
-                if (!parent.children) {
-                    parent.children = [];
-                }
-                parent.children.push(treeItemMap[item.id]);
+function generateTree(res) {
+    let tree = [];
+    for (let group in res) {
+        let node = { "name": group };
+        tree.push(node);
+        for (let item of res[group]) {
+            if (!node.children) {
+                node.children = [];
             }
-        } else {
-            tree.push(treeItemMap[item.id]);
+            node.children.push({ "name": item.equipID });
         }
-    });
-
+    }
     return tree;
 }
 
 
 async function refreshTree() {
     loading.value = true;
-    let equipment_list = await fast_equipment_api.list(null, true);
+    // let res = await foxRequest<any, 'json'>({
+    //     url: "/api/ft_alarm/equipmentTree",
+    //     method: 'post',
+    // });
 
-    const tree = generateTree(equipment_list.data.data);
+    // let res = await demoRequest<any, 'json'>({
+    //     url: "/api/ft_alarm/equipmentTree",
+    //     method: 'post',
+    // });
+    
+    
+    let res = await foxRequest<any, 'json'>({
+        url: "/api/ft_alarm/equipmentTree",
+        method: 'post',
+    });
+
+    const tree = generateTree(res);
     treeData.value = tree;
     loading.value = false;
-
-
 }
 
 function onTreeContainerResize({ width, height }) {

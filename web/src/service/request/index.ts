@@ -13,14 +13,26 @@ const { baseURL, otherBaseURL } = getServiceBaseURL(import.meta.env, isHttpProxy
 
 export const mockRequest = createRequest({ baseURL: '/mock' });
 
+// export const foxRequest = createRequest(
+//   {
+//     baseURL: 'https://mock.apipark.cn/m1/4707504-4359658-default',
+//     headers: {
+//       apifoxToken: 'z5falp5xvM6NGoWGdLDdaDouBF6uDW3K'
+//     }
+//   }
+// );
+
+
 export const foxRequest = createRequest(
   {
-    baseURL: 'https://mock.apipark.cn/m1/4707504-4359658-default',
+    baseURL: otherBaseURL.ifd,
+    // baseURL: 'http://59.110.215.223:8000',
+    // baseURL: '/ifd',
     headers: {
-      apifoxToken: 'z5falp5xvM6NGoWGdLDdaDouBF6uDW3K'
     }
   }
 );
+
 
 
 export const request = createFlatRequest<App.Service.Response, RequestInstanceState>(
