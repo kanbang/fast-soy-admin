@@ -12,20 +12,20 @@
     <n-card title="设备看板" :bordered="true" :segmented="{ content: true }">
       <n-spin :show="loading">
         <n-collapse v-if="expanded_names.length > 0" :default-expanded-names="expanded_names">
-          <n-collapse-item v-for="(node, index) in equiptree" :key="index" :title="node.name" :name="node.id">
+          <n-collapse-item v-for="(value, key, index) in equiptree" :key="index" :title="key" :name="key">
             <n-flex>
-              <n-badge v-for="(equip, eindex) in node.children" :show="equip.state" dot processing>
-                <n-button :type="equip.state == 0 ? 'success' : 'warning'"
+              <n-badge v-for="(equip, eindex) in value" :show="equip.state != '0'" dot processing>
+                <n-button :type="equip.state == '0' ? 'success' : 'warning'"
                   @click="routerPushByKey('early-warning_monitor', { query: { id: String(equip.id) } })"
                   style="border-radius: 0; width: 200px; height: 50px;">
                   <template #icon>
-                    <icon-codicon:run-coverage v-if="equip.state == 0" />
+                    <icon-codicon:run-coverage v-if="equip.state == '0'" />
                     <icon-codicon:run-errors v-else />
                   </template>
                   <!-- <n-ellipsis style="max-width: 200px">
                   {{ equip.equipid }}
                 </n-ellipsis> -->
-                  {{ equip.name }}
+                  {{ equip.equipID }}
                 </n-button>
               </n-badge>
             </n-flex>
@@ -42,6 +42,7 @@ import { nextTick, onMounted, ref } from 'vue';
 
 import { fast_equipment_api } from '@/service/api/ifd'
 import { useRouterPush } from '@/hooks/common/router';
+import { foxRequest } from '@/service/request';
 
 
 const { routerPushByKey } = useRouterPush();
@@ -166,10 +167,22 @@ function generateTree(items: ITreeItem[]): ITreeItem[] {
 
 async function refreshTree() {
   loading.value = true;
-  let equipment_list = await fast_equipment_api.list(null, true);
 
-  const tree = generateTree(equipment_list.data.data);
-  expanded_names.value = tree.map(item => item.id);
+  //  mockRequest.get("/api/ft_alarm/mainStage");
+
+
+
+  // let equipment_list = await fast_equipment_api.list(null, true);
+
+  // const tree = generateTree(equipment_list.data.data);
+  
+  let tree = await foxRequest<any, 'json'>({
+    url: "/api/ft_alarm/mainStage",
+    method: 'get',
+  });
+
+
+  expanded_names.value = Object.keys(tree);
   equiptree.value = tree;
 
   loading.value = false;
@@ -189,7 +202,7 @@ onMounted(async () => {
   // 随机状态
   setInterval(function () {
 
-    for (let item of equiptree.value) {
+    for (let item in equiptree.value) {
       if (item.children) {
         for (let node of item.children) {
           node.state = Math.random() > 0.5 ? 1 : 0;
