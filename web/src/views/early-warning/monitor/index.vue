@@ -47,7 +47,7 @@
                         数据每10秒更新一次
                     </template>
 
-                    <div class="flex flex-col h-full">
+                    <div v-if="curEquipment" class="flex flex-col h-full">
                         <div class="flex flex-row justify-between">
                             <n-statistic v-for="item in statisticData" :key="item.id" v-bind="item"></n-statistic>
                         </div>
@@ -76,7 +76,7 @@
                 </n-input-group>
             </n-flex>
 
-            <LineChart style="width: 100%; height:300px" />
+            <LineChart :xdata="lc_xdata" :series="lc_series" style="width: 100%; height:300px" />
             <n-divider />
             <PieChart style="width: 100%; height: 300px" />
         </n-modal>
@@ -154,12 +154,15 @@
 
 import { ref, unref, reactive, onMounted, computed, Ref, nextTick } from 'vue';
 import { TreeOption, useDialog, useMessage } from 'naive-ui';
-import { AddReq, CreateCrudOptionsProps, CreateCrudOptionsRet, DelReq, EditReq, UserPageQuery, UserPageRes, compute, useColumns, useFormWrapper, useFs } from '@fast-crud/fast-crud';
+import { AddReq, CreateCrudOptionsProps, CreateCrudOptionsRet, DelReq, EditReq, ScopeContext, UserPageQuery, UserPageRes, compute, useColumns, useFormWrapper, useFs } from '@fast-crud/fast-crud';
 import { fast_mfst_api, fast_equipment_api } from '@/service/api/ifd';
 import { request, foxRequest, demoRequest } from '@/service/request';
 
 import { $t } from '@/locales';
 import { useRoute } from 'vue-router';
+
+import LineChart from './line-chart.vue';
+import PieChart from './pie-chart.vue';
 
 const { openDialog } = useFormWrapper();
 
@@ -191,14 +194,21 @@ const curEquipment = ref<TreeOption | null>(null);
 const treeHeight: Ref<number> = ref(0);
 const treeContainer: Ref<HTMLDivElement | null> = ref(null);
 
-import LineChart from './line-chart.vue';
-import PieChart from './pie-chart.vue';
+
+const lc_xdata = ref([]);
+const lc_series = ref([]);
+
 
 const treeNodeProps = ({ option }: { option: TreeOption }) => {
     return {
         onClick() {
-            curEquipment.value = option;
-            crudExpose.doRefresh();
+            if (option.equipID) {
+                curEquipment.value = option;
+                crudExpose.doRefresh();
+            }
+            else {
+                curEquipment.value = null;
+            }
         },
     }
 }
@@ -257,7 +267,7 @@ function generateTree(res) {
             if (!node.children) {
                 node.children = [];
             }
-            node.children.push({ "name": item.equipID });
+            node.children.push({ "name": item.equipID, ...item });
         }
     }
     return tree;
@@ -275,8 +285,8 @@ async function refreshTree() {
     //     url: "/api/ft_alarm/equipmentTree",
     //     method: 'post',
     // });
-    
-    
+
+
     let res = await foxRequest<any, 'json'>({
         url: "/api/ft_alarm/equipmentTree",
         method: 'post',
@@ -299,72 +309,85 @@ async function onStart() {
 function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
     const pageRequest = async (query: UserPageQuery): Promise<UserPageRes> => {
 
-        let demodata = [
-            {
-                "index": 1,
-                "parameter": "1号轴承1号金属温度（炉侧）",
-                "unit": "°C",
-                "value": 54.84,
-                "lower_limit": 55,
-                "upper_limit": 55,
-                "comment": "偏低",
-                "warning": "查询"
-            },
-            {
-                "index": 2,
-                "parameter": "1号轴承2号金属温度（靠侧）",
-                "unit": "°C",
-                "value": null,
-                "lower_limit": 0,
-                "upper_limit": 99,
-                "comment": "正常",
-                "warning": "查询"
-            },
-            {
-                "index": 3,
-                "parameter": "1号轴径振动（X方向）",
-                "unit": "μm",
-                "value": 47.95,
-                "lower_limit": 0,
-                "upper_limit": 120,
-                "comment": "正常",
-                "warning": "查询"
-            },
-            {
-                "index": 4,
-                "parameter": "1号轴径振动（Y方向）",
-                "unit": "μm",
-                "value": 47.95,
-                "lower_limit": 0,
-                "upper_limit": 48,
-                "comment": "偏低",
-                "warning": "查询"
-            },
-            {
-                "index": 5,
-                "parameter": "2号轴承1号金属温度（炉侧）",
-                "unit": "°C",
-                "value": 89.7,
-                "lower_limit": 0,
-                "upper_limit": 99,
-                "comment": "正常",
-                "warning": "查询"
-            },
-            {
-                "index": 6,
-                "parameter": "2号轴承2号金属温度（靠侧）",
-                "unit": "°C",
-                "value": 47.95,
-                "lower_limit": 0,
-                "upper_limit": 99,
-                "comment": "正常",
-                "warning": "查询"
+
+        let res = await foxRequest<any, 'json'>({
+            url: "/api/ft_alarm/monitoringE",
+            method: 'post',
+            data: {
+                TurID: "KBS-1",
+                equiID: "高压缸"
             }
-        ];
+        });
+
+
+        // http://59.110.215.223:8000/api/ft_alarm/monitoringE
+
+        // let demodata = [
+        //     {
+        //         "index": 1,
+        //         "parameter": "1号轴承1号金属温度（炉侧）",
+        //         "unit": "°C",
+        //         "value": 54.84,
+        //         "lower_limit": 55,
+        //         "upper_limit": 55,
+        //         "comment": "偏低",
+        //         "warning": "查询"
+        //     },
+        //     {
+        //         "index": 2,
+        //         "parameter": "1号轴承2号金属温度（靠侧）",
+        //         "unit": "°C",
+        //         "value": null,
+        //         "lower_limit": 0,
+        //         "upper_limit": 99,
+        //         "comment": "正常",
+        //         "warning": "查询"
+        //     },
+        //     {
+        //         "index": 3,
+        //         "parameter": "1号轴径振动（X方向）",
+        //         "unit": "μm",
+        //         "value": 47.95,
+        //         "lower_limit": 0,
+        //         "upper_limit": 120,
+        //         "comment": "正常",
+        //         "warning": "查询"
+        //     },
+        //     {
+        //         "index": 4,
+        //         "parameter": "1号轴径振动（Y方向）",
+        //         "unit": "μm",
+        //         "value": 47.95,
+        //         "lower_limit": 0,
+        //         "upper_limit": 48,
+        //         "comment": "偏低",
+        //         "warning": "查询"
+        //     },
+        //     {
+        //         "index": 5,
+        //         "parameter": "2号轴承1号金属温度（炉侧）",
+        //         "unit": "°C",
+        //         "value": 89.7,
+        //         "lower_limit": 0,
+        //         "upper_limit": 99,
+        //         "comment": "正常",
+        //         "warning": "查询"
+        //     },
+        //     {
+        //         "index": 6,
+        //         "parameter": "2号轴承2号金属温度（靠侧）",
+        //         "unit": "°C",
+        //         "value": 47.95,
+        //         "lower_limit": 0,
+        //         "upper_limit": 99,
+        //         "comment": "正常",
+        //         "warning": "查询"
+        //     }
+        // ];
 
         return {
             code: 0, data: {
-                data: demodata,
+                data: res.symptom,
                 meta: {
                     total: 6
                 }
@@ -414,38 +437,28 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
                 }
             },
             columns: {
-                id: {
-                    title: 'ID',
-                    key: 'id',
-                    type: 'number',
-                    column: {
-                        show: false,
-                    },
-                    form: {
-                        show: false
-                    }
-                },
 
-                parameter: {
+
+                mpname: {
                     title: '参数',
                     type: 'text',
                     column: {
                         width: 260,
                     },
                 },
-                unit: {
+                mpunit: {
                     title: '单位',
                     type: 'text',
                 },
-                value: {
+                rtdata: {
                     title: '实时值',
                     type: 'text',
                 },
-                lower_limit: {
+                mpalarm1: {
                     title: '下限',
                     type: 'text',
                 },
-                upper_limit: {
+                mpalarm2: {
                     title: '上限',
                     type: 'text',
                 },
@@ -459,18 +472,18 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
                 // <n-tag type="error">
                 //   手写的从前
                 // </n-tag>
-                comment: {
+                state: {
                     title: '评语',
                     // type: 'text',
                     type: 'button',
                     column: {
                         component: {
                             type: compute(({ row, value }) => {
-                                return row.comment == "正常" ? "success" : "error";
+                                return row.state == "正常" ? "success" : "error";
                             }),
                             size: 'small',
                             disabled: compute(({ row, value }) => {
-                                return row.comment == "正常";
+                                return row.state == "正常";
                             }),
                             on: {
                                 onClick({ row }) {
@@ -486,24 +499,101 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
                     type: 'button',
                     column: {
                         component: {
+                            text: "查询",
                             type: compute(({ row, value }) => {
-                                return row.comment == "正常" ? "tertiary" : "success";
+                                return row.state == "正常" ? "tertiary" : "success";
                             }),
                             size: 'small',
                             disabled: compute(({ row, value }) => {
-                                return row.comment == "正常";
+                                return row.state == "正常";
                             }),
 
                             // show: compute(({ value }) => {
                             //     return value != null;
                             // }),
                             on: {
-                                onClick({ row }) {
+                                async onClick({ row }) {
                                     // message.success('按钮点击:' + row.warning);
+
+                                    let res = await foxRequest<any, 'json'>({
+                                        url: "/api/ft_alarm/historicalTrend",
+                                        method: 'post',
+                                        data: {
+                                            TurID: "KBS-1",
+                                            mpname: "主汽压力",
+                                            starttime: "2024-06-19 11:00:00",
+                                            endtime: "2024-06-19 13:00:00"
+                                        }
+                                    });
+
+                                    let xdata = [];
+                                    const startDate = new Date('2023-06-01T00:00:00Z');
+                                    const endDate = new Date('2023-06-01T06:00:00Z');
+
+                                    let n = res.htdata.length;
+                                    const timeDiff = endDate.getTime() - startDate.getTime();
+                                    const interval = timeDiff / (n - 1);
+
+                                    // const timePoints: Date[] = [];
+                                    let currentTime = startDate.getTime();
+
+                                    for (let i = 0; i < n; i++) {
+                                        xdata.push(new Date(currentTime));
+                                        currentTime += interval;
+                                    }
+
+
+                                    let series = [{ name: "htdata", data: [] }, { name: "mpalarm1", data: [] }, { name: "mpalarm2", data: [] }]
+                                    for (const it of res.htdata) {
+                                        series[0].data.push(it.htdata);
+                                        series[1].data.push(it.mpalarm1);
+                                        series[2].data.push(it.mpalarm2);
+                                    }
+
+                                    lc_series.value = series;
+                                    lc_xdata.value = xdata;
+                                    // xAxis: {
+                                    //     type: 'category',
+                                    //         boundaryGap: false,
+                                    //             data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                                    // },
+
+                                    //   series: [
+                                    //     {
+                                    //       name: 'Email',
+                                    //       type: 'line',
+                                    //       stack: 'Total',
+                                    //       data: [120, 132, 101, 134, 90, 230, 210]
+                                    //     },
+
+
+                                    // {
+                                    //     "htdata": [
+                                    //         {
+                                    //             "htdata": "2.5",
+                                    //             "mpalarm1": "2.8",
+                                    //             "mpalarm2": "3.12"
+                                    //         },
+                                    //         {
+                                    //             "htdata": "2.5",
+                                    //             "mpalarm1": "2.4",
+                                    //             "mpalarm2": "3.00"
+                                    //         }
+                                    //     ],
+                                    //         "statistic": {
+                                    //         "lower": 1,
+                                    //             "upper": 0,
+                                    //                 "normal": 1
+                                    //     }
+                                    // }
+
                                     showModal.value = true;
                                 },
                             },
                         },
+                        // cellRender(scope: ScopeContext) {
+                        //     return "查询";
+                        // }
                     },
                 },
             }
@@ -520,7 +610,7 @@ onMounted(async () => {
 
     let selected_id = null;
     if ("id" in route.query) {
-        selected_id = +route.query.id;
+        selected_id = route.query.id;
         selectedItem.value = [selected_id];
     }
 

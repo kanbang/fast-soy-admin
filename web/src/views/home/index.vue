@@ -16,7 +16,7 @@
             <n-flex>
               <n-badge v-for="(equip, eindex) in value" :show="equip.state != '0'" dot processing>
                 <n-button :type="equip.state == '0' ? 'success' : 'warning'"
-                  @click="routerPushByKey('early-warning_monitor', { query: { id: String(equip.id) } })"
+                  @click="routerPushByKey('early-warning_monitor', { query: { id: String(equip.equipID) } })"
                   style="border-radius: 0; width: 200px; height: 50px;">
                   <template #icon>
                     <icon-codicon:run-coverage v-if="equip.state == '0'" />
@@ -200,16 +200,16 @@ onMounted(async () => {
   await refreshTree();
 
   // 随机状态
-  setInterval(function () {
+  // setInterval(function () {
 
-    for (let item in equiptree.value) {
-      if (item.children) {
-        for (let node of item.children) {
-          node.state = Math.random() > 0.5 ? 1 : 0;
-        }
-      }
-    }
-  }, 3000);
+  //   for (let item in equiptree.value) {
+  //     if (item.children) {
+  //       for (let node of item.children) {
+  //         node.state = Math.random() > 0.5 ? 1 : 0;
+  //       }
+  //     }
+  //   }
+  // }, 3000);
 
   // nextTick(() => {
   //     if (treeContainer.value) {

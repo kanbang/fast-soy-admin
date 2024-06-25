@@ -3,9 +3,25 @@ import { onMounted, watch } from 'vue';
 import { $t } from '@/locales';
 import { useAppStore } from '@/store/modules/app';
 import { useEcharts } from '@/hooks/common/echarts';
+import { foxRequest } from '@/service/request';
 
 defineOptions({
   name: 'LineChart'
+});
+
+interface SeriesItem {
+  name: string;
+  data: number[];
+}
+
+interface Props {
+  xdata: Date[];
+  series: SeriesItem[]
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  xdata: [],
+  series: []
 });
 
 const appStore = useAppStore();
@@ -24,7 +40,7 @@ const { domRef, updateOptions } = useEcharts(() => ({
     }
   },
   legend: {
-    data: ["测量值"]
+    data: ["测量值", "基准值上限", "基准值下限"]
   },
   grid: {
     left: '3%',
@@ -69,20 +85,40 @@ const { domRef, updateOptions } = useEcharts(() => ({
         focus: 'series'
       },
       data: [],
-      markLine: {
-        // silent: true, // 不触发鼠标事件  
-        lineStyle: {
-          color: '#ff0000'
-        },
-        label: {
-          show: true,
-          position: 'end'
-        },
-        data: [
-          { yAxis: 8000, lineStyle: { color: '#ed2939' }, },
-          { yAxis: 6000, lineStyle: { color: '#f5a623' } },
-        ]
-      },
+      // markLine: {
+      //   // silent: true, // 不触发鼠标事件  
+      //   lineStyle: {
+      //     color: '#ff0000'
+      //   },
+      //   label: {
+      //     show: true,
+      //     position: 'end'
+      //   },
+      //   data: [
+      //     { yAxis: 8000, lineStyle: { color: '#ed2939' }, },
+      //     { yAxis: 6000, lineStyle: { color: '#f5a623' } },
+      //   ]
+      // },
+    },
+    {
+      color: '#f5a623',
+      name: "基准值下限",
+      type: 'line',
+      smooth: true,
+      data: [],
+      lineStyle: {
+        type: 'dashed'
+      }
+    },
+    {
+      color: '#ed2939',
+      name: "基准值上限",
+      type: 'line',
+      smooth: true,
+      data: [],
+      lineStyle: {
+        type: 'dashed'
+      }
     }
   ],
   dataZoom: [
@@ -96,29 +132,29 @@ const { domRef, updateOptions } = useEcharts(() => ({
       end: 100
     }
   ],
-  visualMap: {
-    show: false,
-    top: 50,
-    right: 10,
-    pieces: [
-      {
-        lt: 6000,
-        color: '#f5a623'
-      },
-      {
-        gte: 6000,
-        lte: 8000,
-        color: '#26deca'
-      },
-      {
-        gt: 8000,
-        color: '#ed2939'
-      },
-    ],
-    outOfRange: {
-      color: '#999'
-    }
-  },
+  // visualMap: {
+  //   show: false,
+  //   top: 50,
+  //   right: 10,
+  //   pieces: [
+  //     {
+  //       lt: 6000,
+  //       color: '#f5a623'
+  //     },
+  //     {
+  //       gte: 6000,
+  //       lte: 8000,
+  //       color: '#26deca'
+  //     },
+  //     {
+  //       gt: 8000,
+  //       color: '#ed2939'
+  //     },
+  //   ],
+  //   outOfRange: {
+  //     color: '#999'
+  //   }
+  // },
 
 }));
 
@@ -128,8 +164,13 @@ async function mockData() {
   });
 
   updateOptions(opts => {
-    opts.xAxis.data = ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '24:00'];
-    opts.series[0].data = [2208, 2016, 2916, 4512, 8281, 2008, 1963, 2367, 2956, 678];
+    // opts.xAxis.data = ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '24:00'];
+    // opts.series[0].data = [2208, 2016, 2916, 4512, 8281, 2008, 1963, 2367, 2956, 678];
+
+    opts.xAxis.data = props.xdata;
+    opts.series[0].data = props.series[0].data;
+    opts.series[1].data = props.series[1].data;
+    opts.series[2].data = props.series[2].data;
 
     return opts;
   });
@@ -148,7 +189,10 @@ async function mockData() {
 // }
 
 async function init() {
-  mockData();
+  // mockData();
+
+
+
 }
 
 // watch(
