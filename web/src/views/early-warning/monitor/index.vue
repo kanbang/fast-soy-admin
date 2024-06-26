@@ -49,7 +49,7 @@
 
                     <div v-if="curEquipment" class="flex flex-col h-full">
                         <div class="flex flex-row justify-between">
-                            <n-statistic v-for="item in statisticData" :key="item.id" v-bind="item"></n-statistic>
+                            <n-statistic v-for="item in statisticData" v-bind="item"></n-statistic>
                         </div>
                         <n-divider />
                         <fs-crud class="flex-grow" ref="crudRef" v-bind="crudBinding">
@@ -178,6 +178,7 @@ import { useRoute } from 'vue-router';
 
 import LineChart from './line-chart.vue';
 import PieChart from './pie-chart.vue';
+import dayjs from 'dayjs';
 
 const { openDialog } = useFormWrapper();
 
@@ -271,22 +272,18 @@ const routeQuery = computed(() => JSON.stringify(route.query));
 
 const statisticData = ref([
     {
-        id: 0,
         label: $t('当前时间戳'),
         value: '2024-6-16 10:33:22',
     },
     {
-        id: 1,
         label: ('有功功率'),
         value: '17MV',
     },
     {
-        id: 2,
         label: ('环境温度'),
         value: '5℃',
     },
     {
-        id: 3,
         label: ('汽机转速'),
         value: '3000rpm',
     },
@@ -404,6 +401,17 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
             //     equiID: "高压缸"
             // }
         });
+
+        // res.condition = [{ cdname: '工况名称', rtdata: '工况当前值' },];
+        statisticData.value = [
+            {
+                label: $t('当前时间戳'),
+                value: dayjs().format('YYYY-MM-DD HH:mm:ss')
+            },
+            ...res.condition.map(item => ({ label: item.cdname, value: item.rtdata }))
+        ];
+        // statisticData.value = res.condition
+        // condition[{"cdname":工况名称 ,"rtdata" 工况当前值},]
 
 
         return {
