@@ -71,6 +71,11 @@ https://uno.antfu.me/play/
 http://59.110.215.223:8000/
 
 
+ <!-- APScheduler  -->
+https://github.com/grillazz/fastapi-apscheduler/blob/main/fastapi_apscheduler/scheduler.py
+https://github.com/vvandk/kinit/blob/master/kinit-task/main.py
+
+
 东北电力大学
 
 超：知识系统
@@ -80,3 +85,8 @@ http://59.110.215.223:8000/
 设备-征兆-类别
 
 首页：知识、预警
+
+
+TODO:
+
+detectAL 展示方式

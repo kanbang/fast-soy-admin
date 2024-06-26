@@ -82,6 +82,21 @@
         </n-modal>
 
 
+        <n-modal v-model:show="showFault" preset="card" title="故障信息" style="width: 50%; height: 90%">
+
+            <!-- <n-h3>h3 标签</n-h3>
+            <n-p>
+                《且听风吟》是日本作家村上春树的第一本小说。它首次出现在 1979 年 6
+                月的《群像》（日本最有影响力的文学杂志之一），并于次月出版成书。这部小说被日本导演
+                Kazuki Ōmori 改编成电影，并于 1981 年由艺术剧院协会发行。1987
+                年被阿尔弗雷德伯恩鲍姆译成英文。
+            </n-p> -->
+            <n-data-table :columns="ft_columns" :data="ft_data" :pagination="false" :bordered="true"
+                :single-line="false" />
+
+
+        </n-modal>
+
         <n-modal v-model:show="showTip" preset="card" title="轴向位移2A偏高" style="width: 50%; height: 90%">
             <n-flex justify="center" class="mb-8px">
                 <n-card title="可能的故障" size="small" :bordered="false">
@@ -171,6 +186,7 @@ const dialog = useDialog();
 
 const showModal = ref(false);
 const showTip = ref(false);
+const showFault = ref(false);
 
 
 interface ITreeItem {
@@ -197,6 +213,34 @@ const lc_xdata = ref([]);
 const lc_series = ref([]);
 
 const pie_data = ref([]);
+
+
+const ft_columns = ref([
+    {
+        title: '故障模式',
+        key: 'fault'
+    },
+    {
+        title: '故障设备',
+        key: 'equipment'
+    },
+    {
+        title: '故障原因',
+        key: 'cause'
+    },
+    {
+        title: '故障影响',
+        key: 'effect'
+    },
+    {
+        title: '运维措施',
+        key: 'maintenance'
+    }
+]);
+
+const ft_data = ref([]);
+
+
 
 
 const treeNodeProps = ({ option }: { option: TreeOption }) => {
@@ -297,6 +341,55 @@ function onTreeContainerResize({ width, height }) {
 
 async function onStart() {
 
+}
+
+async function showChartDlg() {
+    let res = await foxRequest<any, 'json'>({
+        url: "/api/ft_alarm/historicalTrend",
+        method: 'post',
+        data: {
+            TurID: "KBS-1",
+            mpname: "主汽压力",
+            starttime: "2024-06-19 11:00:00",
+            endtime: "2024-06-19 13:00:00"
+        }
+    });
+
+    let xdata = [];
+    const startDate = new Date('2023-06-01T00:00:00Z');
+    const endDate = new Date('2023-06-01T06:00:00Z');
+
+    let n = res.htdata.length;
+    const timeDiff = endDate.getTime() - startDate.getTime();
+    const interval = timeDiff / (n - 1);
+
+    // const timePoints: Date[] = [];
+    let currentTime = startDate.getTime();
+
+    for (let i = 0; i < n; i++) {
+        xdata.push(new Date(currentTime));
+        currentTime += interval;
+    }
+
+
+    let series = [{ name: "htdata", data: [] }, { name: "mpalarm1", data: [] }, { name: "mpalarm2", data: [] }]
+    for (const it of res.htdata) {
+        series[0].data.push(it.htdata);
+        series[1].data.push(it.mpalarm1);
+        series[2].data.push(it.mpalarm2);
+    }
+
+    lc_series.value = series;
+    lc_xdata.value = xdata;
+
+    pie_data.value = [
+        { name: "正常", value: res.statistic.normal },
+        { name: "偏低", value: res.statistic.lower },
+        { name: "偏高", value: res.statistic.upper },
+    ];
+
+
+    showModal.value = true;
 }
 
 function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
@@ -406,7 +499,8 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
                             on: {
                                 onClick({ row }) {
                                     // message.success('按钮点击:' + row.warning);
-                                    showTip.value = true;
+                                    // showTip.value = true;
+                                    showChartDlg();
                                 },
                             },
                         },
@@ -434,51 +528,20 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
                                     // message.success('按钮点击:' + row.warning);
 
                                     let res = await foxRequest<any, 'json'>({
-                                        url: "/api/ft_alarm/historicalTrend",
+                                        url: "/api/ft_alarm/detectSingle",
                                         method: 'post',
                                         data: {
-                                            TurID: "KBS-1",
-                                            mpname: "主汽压力",
-                                            starttime: "2024-06-19 11:00:00",
-                                            endtime: "2024-06-19 13:00:00"
+
+                                            mpname: row.mpname,
+                                            state: row.state
                                         }
                                     });
 
-                                    let xdata = [];
-                                    const startDate = new Date('2023-06-01T00:00:00Z');
-                                    const endDate = new Date('2023-06-01T06:00:00Z');
-
-                                    let n = res.htdata.length;
-                                    const timeDiff = endDate.getTime() - startDate.getTime();
-                                    const interval = timeDiff / (n - 1);
-
-                                    // const timePoints: Date[] = [];
-                                    let currentTime = startDate.getTime();
-
-                                    for (let i = 0; i < n; i++) {
-                                        xdata.push(new Date(currentTime));
-                                        currentTime += interval;
-                                    }
+                                    ft_data.value = res.faultInfo;
+                                    showFault.value = true;
 
 
-                                    let series = [{ name: "htdata", data: [] }, { name: "mpalarm1", data: [] }, { name: "mpalarm2", data: [] }]
-                                    for (const it of res.htdata) {
-                                        series[0].data.push(it.htdata);
-                                        series[1].data.push(it.mpalarm1);
-                                        series[2].data.push(it.mpalarm2);
-                                    }
 
-                                    lc_series.value = series;
-                                    lc_xdata.value = xdata;
-
-                                    pie_data.value = [
-                                        { name: "正常", value: res.statistic.normal },
-                                        { name: "偏低", value: res.statistic.lower },
-                                        { name: "偏高", value: res.statistic.upper },
-                                    ];
-
-
-                                    showModal.value = true;
                                 },
                             },
                         },
