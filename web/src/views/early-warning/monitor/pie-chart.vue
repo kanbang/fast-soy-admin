@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch } from 'vue';
+import { onMounted, watch } from 'vue';
 import { $t } from '@/locales';
 import { useAppStore } from '@/store/modules/app';
 import { useEcharts } from '@/hooks/common/echarts';
@@ -7,6 +7,20 @@ import { useEcharts } from '@/hooks/common/echarts';
 defineOptions({
   name: 'PieChart'
 });
+
+interface SeriesItem {
+  name: string;
+  data: number;
+}
+
+interface Props {
+  piedata: SeriesItem[]
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  piedata: [],
+});
+
 
 const appStore = useAppStore();
 
@@ -62,11 +76,13 @@ async function mockData() {
   });
 
   updateOptions(opts => {
-    opts.series[0].data = [
-      { name: "正常", value: 40 },
-      { name: "偏低", value: 10 },
-      { name: "偏高", value: 20 },
-    ];
+    // opts.series[0].data = [
+    //   { name: "正常", value: 40 },
+    //   { name: "偏低", value: 10 },
+    //   { name: "偏高", value: 20 },
+    // ];
+
+    opts.series[0].data = props.piedata;
 
     return opts;
   });
@@ -99,6 +115,10 @@ watch(
     updateLocale();
   }
 );
+onMounted(() => {
+  mockData();
+
+})
 
 // init
 init();

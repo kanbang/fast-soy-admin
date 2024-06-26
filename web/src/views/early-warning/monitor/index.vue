@@ -78,7 +78,7 @@
 
             <LineChart :xdata="lc_xdata" :series="lc_series" style="width: 100%; height:300px" />
             <n-divider />
-            <PieChart style="width: 100%; height: 300px" />
+            <PieChart :piedata="pie_data" style="width: 100%; height: 300px" />
         </n-modal>
 
 
@@ -187,9 +187,7 @@ const pattern = ref('');
 
 const selectedItem = ref([]);
 
-
 const curEquipment = ref<TreeOption | null>(null);
-
 
 const treeHeight: Ref<number> = ref(0);
 const treeContainer: Ref<HTMLDivElement | null> = ref(null);
@@ -198,12 +196,21 @@ const treeContainer: Ref<HTMLDivElement | null> = ref(null);
 const lc_xdata = ref([]);
 const lc_series = ref([]);
 
+const pie_data = ref([]);
+
 
 const treeNodeProps = ({ option }: { option: TreeOption }) => {
     return {
         onClick() {
             if (option.equipID) {
-                curEquipment.value = option;
+                // curEquipment.value = option;
+
+                curEquipment.value = {
+                    TurID: "KBS-1",
+                    equiID: option.equipID
+                };
+
+
                 crudExpose.doRefresh();
             }
             else {
@@ -242,21 +249,8 @@ const statisticData = ref([
 ]);
 
 
-const formParams = reactive({
-    type: 1,
-    label: '',
-    subtitle: '',
-    path: '',
-    auth: '',
-    openType: 1,
-});
-
-
 let treeItemMap: { [key: number]: ITreeItem } = {};
 
-// "equipmentList01": [
-//         {
-//             "equipID": "高压缸",
 
 function generateTree(res) {
     let tree = [];
@@ -305,85 +299,19 @@ async function onStart() {
 
 }
 
-
 function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
     const pageRequest = async (query: UserPageQuery): Promise<UserPageRes> => {
-
 
         let res = await foxRequest<any, 'json'>({
             url: "/api/ft_alarm/monitoringE",
             method: 'post',
-            data: {
-                TurID: "KBS-1",
-                equiID: "高压缸"
-            }
+            data: curEquipment.value
+            // data: {
+            //     TurID: "KBS-1",
+            //     equiID: "高压缸"
+            // }
         });
 
-
-        // http://59.110.215.223:8000/api/ft_alarm/monitoringE
-
-        // let demodata = [
-        //     {
-        //         "index": 1,
-        //         "parameter": "1号轴承1号金属温度（炉侧）",
-        //         "unit": "°C",
-        //         "value": 54.84,
-        //         "lower_limit": 55,
-        //         "upper_limit": 55,
-        //         "comment": "偏低",
-        //         "warning": "查询"
-        //     },
-        //     {
-        //         "index": 2,
-        //         "parameter": "1号轴承2号金属温度（靠侧）",
-        //         "unit": "°C",
-        //         "value": null,
-        //         "lower_limit": 0,
-        //         "upper_limit": 99,
-        //         "comment": "正常",
-        //         "warning": "查询"
-        //     },
-        //     {
-        //         "index": 3,
-        //         "parameter": "1号轴径振动（X方向）",
-        //         "unit": "μm",
-        //         "value": 47.95,
-        //         "lower_limit": 0,
-        //         "upper_limit": 120,
-        //         "comment": "正常",
-        //         "warning": "查询"
-        //     },
-        //     {
-        //         "index": 4,
-        //         "parameter": "1号轴径振动（Y方向）",
-        //         "unit": "μm",
-        //         "value": 47.95,
-        //         "lower_limit": 0,
-        //         "upper_limit": 48,
-        //         "comment": "偏低",
-        //         "warning": "查询"
-        //     },
-        //     {
-        //         "index": 5,
-        //         "parameter": "2号轴承1号金属温度（炉侧）",
-        //         "unit": "°C",
-        //         "value": 89.7,
-        //         "lower_limit": 0,
-        //         "upper_limit": 99,
-        //         "comment": "正常",
-        //         "warning": "查询"
-        //     },
-        //     {
-        //         "index": 6,
-        //         "parameter": "2号轴承2号金属温度（靠侧）",
-        //         "unit": "°C",
-        //         "value": 47.95,
-        //         "lower_limit": 0,
-        //         "upper_limit": 99,
-        //         "comment": "正常",
-        //         "warning": "查询"
-        //     }
-        // ];
 
         return {
             code: 0, data: {
@@ -437,8 +365,6 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
                 }
             },
             columns: {
-
-
                 mpname: {
                     title: '参数',
                     type: 'text',
@@ -463,15 +389,7 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
                     type: 'text',
                 },
 
-                // <n-tag type="success">
-                //   不该
-                // </n-tag>
-                // <n-tag type="warning">
-                //   超人不会飞
-                // </n-tag>
-                // <n-tag type="error">
-                //   手写的从前
-                // </n-tag>
+
                 state: {
                     title: '评语',
                     // type: 'text',
@@ -552,40 +470,13 @@ function createCrudOptions({ crudExpose }: CreateCrudOptionsProps): CreateCrudOp
 
                                     lc_series.value = series;
                                     lc_xdata.value = xdata;
-                                    // xAxis: {
-                                    //     type: 'category',
-                                    //         boundaryGap: false,
-                                    //             data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                                    // },
 
-                                    //   series: [
-                                    //     {
-                                    //       name: 'Email',
-                                    //       type: 'line',
-                                    //       stack: 'Total',
-                                    //       data: [120, 132, 101, 134, 90, 230, 210]
-                                    //     },
+                                    pie_data.value = [
+                                        { name: "正常", value: res.statistic.normal },
+                                        { name: "偏低", value: res.statistic.lower },
+                                        { name: "偏高", value: res.statistic.upper },
+                                    ];
 
-
-                                    // {
-                                    //     "htdata": [
-                                    //         {
-                                    //             "htdata": "2.5",
-                                    //             "mpalarm1": "2.8",
-                                    //             "mpalarm2": "3.12"
-                                    //         },
-                                    //         {
-                                    //             "htdata": "2.5",
-                                    //             "mpalarm1": "2.4",
-                                    //             "mpalarm2": "3.00"
-                                    //         }
-                                    //     ],
-                                    //         "statistic": {
-                                    //         "lower": 1,
-                                    //             "upper": 0,
-                                    //                 "normal": 1
-                                    //     }
-                                    // }
 
                                     showModal.value = true;
                                 },
@@ -612,6 +503,7 @@ onMounted(async () => {
     if ("id" in route.query) {
         selected_id = route.query.id;
         selectedItem.value = [selected_id];
+
     }
 
     await refreshTree();
@@ -621,8 +513,12 @@ onMounted(async () => {
             treeHeight.value = treeContainer.value.clientHeight - 20;
         }
 
-        if (selected_id != null && selected_id in treeItemMap) {
-            curEquipment.value = treeItemMap[selected_id];
+        // if (selected_id != null && selected_id in treeItemMap) {
+        if (selected_id != null) {
+            curEquipment.value = {
+                TurID: "KBS-1",
+                equiID: "高压缸"
+            };
             crudExpose.doRefresh();
         }
     });
