@@ -14,6 +14,7 @@ from .system_manage import router_system_manage
 from .dummy.views import router as dummy_router
 from .unit.views import router as unit_router
 from .mfs.views import mfs_router, mfst_router, mfp_router, mfpt_router, equipment_router
+from .task.views import router as task_router
 
 v1_router = APIRouter()
 
@@ -27,4 +28,5 @@ v1_router.include_router(mfs_router)
 v1_router.include_router(mfpt_router)
 v1_router.include_router(mfp_router)
 v1_router.include_router(equipment_router)
+v1_router.include_router(task_router, prefix="/task", tags=["定时任务"])
 

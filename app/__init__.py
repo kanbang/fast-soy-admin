@@ -17,6 +17,7 @@ from app.core.init_app import (
 )
 from app.models.system import Log
 from app.models.system import LogType, LogDetailType
+from app.task.task import ScheduledTask
 
 try:
     from app.settings import APP_SETTINGS
@@ -48,8 +49,13 @@ async def lifespan(_app: FastAPI):
         await refresh_api_list()
         await init_users()
         await Log.create(log_type=LogType.SystemLog, log_detail_type=LogDetailType.SystemStart)
+
+        _app.state.task = ScheduledTask()
+        _app.state.task.run()
+
         yield
     finally:
+        _app.state.task.close()
         end_time = time.time()
         runtime = end_time - start_time
         logger.info(f"App {_app.title} runtime: {runtime} seconds")  # noqa
@@ -57,3 +63,6 @@ async def lifespan(_app: FastAPI):
 
 
 app = create_app()
+
+
+
