@@ -79,15 +79,15 @@ async def get_tasks(
 async def post_tasks(request: Request, data: TaskDTO):
 
 
-    exec_strategy = data.get("exec_strategy")
+    exec_strategy = data.exec_strategy
     job_params = {
-        "name": data.get("_id"),
-        "job_class": data.get("job_class"),
-        "expression": data.get("expression")
+        "name": data.name,
+        "job_class": data.job_class,
+        "expression": data.expression
     }
     if exec_strategy == "interval" or exec_strategy == "cron":
-        job_params["start_date"] = data.get("start_date")
-        job_params["end_date"] = data.get("end_date")
+        job_params["start_date"] = data.start_date
+        job_params["end_date"] = data.end_date
 
     
     scheduler = request.app.state.task

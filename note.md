@@ -90,3 +90,17 @@ https://github.com/vvandk/kinit/blob/master/kinit-task/main.py
 TODO:
 
 detectAL 展示方式
+
+https://kinit.ktianc.top/system/task
+
+{
+  "name": "tname",
+  "group": "tgroup",
+  "job_class": "app.task.test.Test(\"jet\",1)",
+  "exec_strategy": "interval",
+  "expression": "10 * * * *",
+  "is_active": true,
+  "remark": "string",
+  "start_date": "2024-06-20T12:25:54.698Z",
+  "end_date": "2024-07-29T12:25:54.698Z"
+}
