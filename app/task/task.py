@@ -1,4 +1,3 @@
-
 import datetime
 from enum import Enum
 import random
@@ -27,7 +26,7 @@ class ScheduledTask:
         :param job_params: 执行参数
         :return:
         """
-        name = job_params.get("name", None)
+        job_id = job_params.get("job_id", None)
         error_info = None
         try:
             if exec_strategy == self.JobExecStrategy.interval.value:
@@ -38,8 +37,10 @@ class ScheduledTask:
                 self.scheduler.add_date_job(**job_params)
             elif exec_strategy == self.JobExecStrategy.once.value:
                 # 这种方式会自动执行事件监听器，用于保存执行任务完成后的日志
-                job_params["name"] = f"{name}-temp-{random.randint(1000, 9999)}"
-                self.scheduler.add_date_job(**job_params, expression=datetime.datetime.now())
+                job_params["job_id"] = f"{job_id}-temp-{random.randint(1000, 9999)}"
+                self.scheduler.add_date_job(
+                    **job_params, expression=datetime.datetime.now()
+                )
             else:
                 raise ValueError("无效的触发器")
         except ConflictingIdError as e:
@@ -49,26 +50,40 @@ class ScheduledTask:
             error_info = e.__str__()
 
         if error_info:
-            logger.error(f"任务编号：{name}，报错：{error_info}")
-            self.error_record(name, error_info)
+            logger.error(f"任务编号：{job_id}，报错：{error_info}")
+            self.error_record(job_id, error_info)
             return False
         return True
 
-    
-    async def error_record(self, name: str, error_info: str) -> None:
+    def remove_job(self, job_id: str) -> bool:
+        return self.scheduler.remove_job(job_id)
+
+    def remove_all_jobs(self) -> bool:
+        return self.scheduler.remove_all_jobs()
+
+    def get_job_status(self, job_id: str) -> str:
+        return self.scheduler.get_job_status(job_id)
+
+    def pause(self, job_id: str) -> bool:
+        return self.scheduler.pause(job_id)
+
+    def resume(self, job_id: str) -> bool:
+        return self.scheduler.resume(job_id)
+
+    async def error_record(self, job_id: str, error_info: str) -> None:
         """
         添加任务失败记录，并且将任务状态改为 False
-        :param name: 任务编号
+        :param job_id: 任务编号
         :param error_info: 报错信息
         :return:
         """
         try:
-            task = await SchedulerTask.get(name=name)
+            task = await SchedulerTask.get(id=job_id)
             task.is_active = False
             await task.save()
 
             result = {
-                "job_id": name,
+                "job_id": job_id,
                 "job_class": task.job_class,
                 "name": task.name,
                 "group": task.group,
@@ -79,11 +94,11 @@ class ScheduledTask:
                 "process_time": 0,
                 "retval": "任务添加失败",
                 "exception": error_info,
-                "traceback": None
+                "traceback": None,
             }
             await SchedulerTaskRecord.create(**result)
         except ValueError as e:
-            logger.error(f"任务编号：{name}, 报错：{e}")
+            logger.error(f"任务编号：{job_id}, 报错：{e}")
 
     def run(self) -> None:
         """
@@ -94,7 +109,6 @@ class ScheduledTask:
         self.scheduler.start()
         print("Scheduler 启动成功")
 
-
     def close(self) -> None:
         """
         # pycharm 执行停止，该函数无法正常被执行，怀疑是因为阻塞导致或 pycharm 的强制退出导致
@@ -104,4 +118,3 @@ class ScheduledTask:
         """
         if self.scheduler:
             self.scheduler.shutdown()
-      

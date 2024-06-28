@@ -102,3 +102,23 @@ def resp_success(
 
     return ORJSONResponse(status_code=http_code, content=content, headers=headers)
 
+
+def resp_fail(
+    data=None,
+    total=None,
+    code="4000",
+    msg="Fail",
+    http_code=status.HTTP_200_OK,
+    headers={},
+):
+    success = True if code == "0000" else False
+
+    rdata = {"data": data}
+    if total is not None:
+        rdata["meta"] = {"total": total}
+
+    content = dict(
+        code=code, msg=msg, data=rdata, success=success
+    )
+
+    return ORJSONResponse(status_code=http_code, content=content, headers=headers)

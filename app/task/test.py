@@ -1,4 +1,4 @@
-from time import time
+from time import sleep
 import datetime
 
 
@@ -14,5 +14,5 @@ class Test:
         :return:
         """
         print('{}, 定时任务测试实例，参数为: {}, {}'.format(datetime.datetime.now(), self.name, self.age))
-        time.sleep(3)
+        sleep(3)
         return '任务执行完成'
