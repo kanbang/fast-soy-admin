@@ -23,6 +23,38 @@ from app.utils.crud.tortoise_crud import convert_to_pydantic
 
 router = APIRouter()
 
+# GET 顺序不能变，'/groups' '/records' '/{_id}' 会冲突
+@router.get("/groups", summary="获取定时任务分组选择项列表")
+async def get_task_group_options():
+    groups = await SchedulerTask.all().distinct().values("group")
+    return resp_success(data=[group["group"] for group in groups])
+
+@router.get("/records", summary="获取定时任务调度日志列表")
+async def get_task_records(
+    request: Request,
+    page: int = Query(1, description="页码"),
+    page_size: int = Query(10, description="每页数量"),
+    name: str = Query(None, description="name"),
+    job_id: str = Query(None, description="id"),
+):
+    search = Q()
+
+    if name:
+        search &= Q(name__icontains=name)
+    if job_id:
+        search &= Q(job_id__icontains=job_id)
+
+    query = SchedulerTaskRecord.filter(search)
+    total = await query.count()
+    role_objs = (
+        await query.offset((page - 1) * page_size)
+        .limit(page_size)
+        .order_by("-start_time")
+    )
+
+    records = convert_to_pydantic(role_objs, SchedulerTaskRecordDTO)
+    return resp_success(records, total=total)
+
 
 # , response_model=List[TaskSimpleOut]
 @router.get("", summary="获取定时任务列表")
@@ -84,7 +116,7 @@ async def post_tasks(request: Request, data: TaskDTO):
     return resp_success(record, msg="任务添加成功(not active)")
 
 
-@router.put("", summary="更新定时任务")
+@router.put("/{_id}", summary="更新定时任务")
 async def put_tasks(request: Request, _id: int, data: TaskDTO):
     task = await SchedulerTask.get(id=_id)
     if not task:
@@ -121,7 +153,7 @@ async def put_tasks(request: Request, _id: int, data: TaskDTO):
     return resp_success(record, msg="任务更新成功(not active)")
 
 
-@router.delete("", summary="删除单个定时任务")
+@router.delete("/{_id}", summary="删除单个定时任务")
 async def delete_task(request: Request, _id: int):
     task = await SchedulerTask.get(id=_id)
     if not task:
@@ -136,7 +168,7 @@ async def delete_task(request: Request, _id: int):
         return resp_fail(msg="任务删除报错")
 
 
-@router.delete("/all", summary="删除所有定时任务")
+@router.delete("", summary="删除所有定时任务")
 async def delete_all_tasks(request: Request):
     await SchedulerTask.all().delete()
 
@@ -171,59 +203,34 @@ async def run_once_task(request: Request, _id: int):
     else:
         return resp_fail(msg="报错")
 
+
 @router.get("/status/{job_id}", summary="获取定时任务状态")
 async def get_task_status(request: Request, job_id: str):
     scheduler = request.app.state.task
     status = scheduler.get_job_status(job_id)
     return resp_success(msg=status)
 
+
 @router.post("/pause/{job_id}", summary="暂停定时任务")
 async def pause_task(request: Request, job_id: str):
     scheduler = request.app.state.task
     try:
-        scheduler.pause(job_id)
-        return {"message": f"任务 {job_id} 已暂停"}
+        if scheduler.pause(job_id):
+            return resp_success(msg=f"任务 {job_id} 已暂停")
+        else:
+            return resp_fail(msg=f"任务 {job_id} 未找到")
     except JobLookupError:
         raise HTTPException(status_code=404, detail=f"任务 {job_id} 未找到")
+
 
 @router.post("/resume/{job_id}", summary="恢复定时任务")
 async def resume_task(request: Request, job_id: str):
     scheduler = request.app.state.task
     try:
-        scheduler.resume(job_id)
-        return {"message": f"任务 {job_id} 已恢复"}
+        if scheduler.resume(job_id):
+            return resp_success(msg=f"任务 {job_id} 已恢复")
+        else:
+            return resp_fail(msg=f"任务 {job_id} 未找到")
     except JobLookupError:
         raise HTTPException(status_code=404, detail=f"任务 {job_id} 未找到")
-    
 
-@router.get("/groups", summary="获取定时任务分组选择项列表")
-async def get_task_group_options():
-    groups = await SchedulerTask.all().distinct().values("group")
-    return resp_success(data=[group["group"] for group in groups])
-
-
-@router.get("/records", summary="获取定时任务调度日志列表")
-async def get_task_records(
-    request: Request,
-    page: int = Query(1, description="页码"),
-    page_size: int = Query(10, description="每页数量"),
-    name: str = Query(None, description="name"),
-    job_id: str = Query(None, description="id"),
-):
-    search = Q()
-
-    if name:
-        search &= Q(name__icontains=name)
-    if job_id:
-        search &= Q(job_id__icontains=job_id)
-
-    query = SchedulerTaskRecord.filter(search)
-    total = await query.count()
-    role_objs = (
-        await query.offset((page - 1) * page_size)
-        .limit(page_size)
-        .order_by("-start_time")
-    )
-
-    records = convert_to_pydantic(role_objs, SchedulerTaskRecordDTO)
-    return resp_success(records, total=total)

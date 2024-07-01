@@ -2,11 +2,9 @@ import datetime
 from enum import Enum
 import random
 from apscheduler.jobstores.base import ConflictingIdError
-
 from app.models.system.task import SchedulerTask, SchedulerTaskRecord
 from .scheduler import Scheduler
 from loguru import logger
-
 
 class ScheduledTask:
 
@@ -118,3 +116,4 @@ class ScheduledTask:
         """
         if self.scheduler:
             self.scheduler.shutdown()
+

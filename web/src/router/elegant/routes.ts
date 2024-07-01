@@ -528,6 +528,26 @@ export const generatedRoutes: GeneratedRoute[] = [
     ]
   },
   {
+    name: 'task',
+    path: '/task',
+    component: 'layout.base',
+    meta: {
+      title: 'task',
+      i18nKey: 'route.task'
+    },
+    children: [
+      {
+        name: 'task_scheduler',
+        path: '/task/scheduler',
+        component: 'view.task_scheduler',
+        meta: {
+          title: 'task_scheduler',
+          i18nKey: 'route.task_scheduler'
+        }
+      }
+    ]
+  },
+  {
     name: 'user-center',
     path: '/user-center',
     component: 'layout.base$view.user-center',

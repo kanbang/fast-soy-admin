@@ -1,4 +1,3 @@
-import asyncio
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -10,16 +9,12 @@ from apscheduler.events import EVENT_JOB_EXECUTED, JobExecutionEvent
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.job import Job
 from apscheduler.jobstores.base import ConflictingIdError, JobLookupError
-from loguru import logger
 from tortoise import Tortoise, fields, run_async
-from tortoise.exceptions import DoesNotExist, IntegrityError
-
 import datetime
-import json
 import re
-import pytz
 
-from app.models.system.task import SchedulerTask, SchedulerTaskRecord
+from app.task.listener import before_job_execution
+
 
 DATABASE_URL = "sqlite:///scheduler.db"
 # DATABASE_URL = "sqlite:///db_system.sqlite3"
@@ -132,7 +127,7 @@ class Scheduler:
             print(f"删除任务失败, 报错：{e}")
             return False
         return True
-    
+
     def remove_all_jobs(self) -> bool:
         try:
             self.scheduler.remove_all_jobs()
@@ -140,7 +135,7 @@ class Scheduler:
             print(f"删除任务失败, 报错：{e}")
             return False
         return True
-    
+
     def get_job_status(self, job_id: str) -> str:
         job = self.scheduler.get_job(job_id)
         if job is None:
@@ -149,7 +144,7 @@ class Scheduler:
             return "paused"
         else:
             return "running"
-        
+
     def pause(self, job_id: str) -> bool:
         job = self.scheduler.get_job(job_id)
         if job:
@@ -233,48 +228,6 @@ class Scheduler:
 
     def shutdown(self) -> None:
         self.scheduler.shutdown()
-
-def before_job_execution(event: JobExecutionEvent):
-     asyncio.create_task(async_before_job_execution(event))
-
-async def async_before_job_execution(event: JobExecutionEvent):
-    timezone = pytz.timezone("Asia/Shanghai")
-    start_time: datetime.datetime = event.scheduled_run_time.astimezone(timezone)
-    end_time = datetime.datetime.now(timezone)
-    process_time = (end_time - start_time).total_seconds()
-
-    # # Ensure both are aware or naive (in this case, making both aware)
-    # if start_time.tzinfo is None:
-    #     start_time = timezone.localize(start_time)
-
-    process_time = (end_time - start_time).total_seconds()
-    job_id = event.job_id.split("-")[0]
-
-    result = {
-        "job_id": job_id,
-        "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S"),
-        "end_time": end_time.strftime("%Y-%m-%d %H:%M:%S"),
-        "process_time": process_time,
-        "retval": json.dumps(event.retval),
-        "exception": json.dumps(event.exception),
-        "traceback": json.dumps(event.traceback),
-    }
-
-    try:
-        task = await SchedulerTask.get(id=job_id)
-        result.update(
-            {
-                "job_class": task.job_class,
-                "name": task.name,
-                "group": task.group,
-                "exec_strategy": task.exec_strategy,
-                "expression": task.expression,
-            }
-        )
-    except DoesNotExist:
-        result["exception"] = f"Task with id {job_id} does not exist"
-
-    await SchedulerTaskRecord.create(**result)
 
 
 async def main():

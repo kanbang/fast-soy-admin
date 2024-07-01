@@ -40,6 +40,7 @@ declare module 'vue' {
     IconMdiKeyboardReturn: typeof import('~icons/mdi/keyboard-return')['default']
     IconMdiRefresh: typeof import('~icons/mdi/refresh')['default']
     IconPajamasFileTree: typeof import('~icons/pajamas/file-tree')['default']
+    'IconRadixIcons:magicWand': typeof import('~icons/radix-icons/magic-wand')['default']
     IconUilSearch: typeof import('~icons/uil/search')['default']
     LangSwitch: typeof import('./../components/common/lang-switch.vue')['default']
     LookForward: typeof import('./../components/custom/look-forward.vue')['default']

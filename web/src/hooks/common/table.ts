@@ -40,6 +40,25 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
     transformer: config.transformer
       ? config.transformer
       : res => {
+        if (res.data.data && res.data.meta) {
+          // 兼容crud api
+          const records = res.data.data;
+          const { current = 1, size = 10, total = 0 } = res.data.meta;
+          const recordsWithIndex = records.map((item, index) => {
+            return {
+              ...item,
+              index: (current - 1) * size + index + 1
+            };
+          });
+
+          return {
+            data: recordsWithIndex,
+            pageNum: current,
+            pageSize: size,
+            total
+          };
+        }
+        else {
           const { records = [], current = 1, size = 10, total = 0 } = res.data || {};
 
           const recordsWithIndex = records.map((item, index) => {
@@ -55,7 +74,8 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
             pageSize: size,
             total
           };
-        },
+        }
+      },
 
     getColumnChecks: cols => {
       const checks: NaiveUI.TableColumnCheck[] = [];
@@ -143,8 +163,8 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
     },
     ...(showTotal
       ? {
-          prefix: page => $t('datatable.itemCount', { total: page.itemCount })
-        }
+        prefix: page => $t('datatable.itemCount', { total: page.itemCount })
+      }
       : {})
   });
 

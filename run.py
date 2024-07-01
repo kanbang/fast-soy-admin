@@ -1,3 +1,11 @@
+'''
+Descripttion: 
+version: 0.x
+Author: zhai
+Date: 2024-05-31 21:27:14
+LastEditors: zhai
+LastEditTime: 2024-06-29 08:53:55
+'''
 import uvicorn
 
 from app.log.log import LOGGING_CONFIG
