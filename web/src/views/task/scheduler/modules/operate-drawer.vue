@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
-import { fetchAddUser, fetchGetRoleList, fetchUpdateUser } from '@/service/api';
+import { fetchAddTask, fetchGetRoleList, fetchUpdateTask } from '@/service/api';
 import { $t } from '@/locales';
+import dayjs from 'dayjs';
 
 defineOptions({
   name: 'OperateDrawer'
@@ -47,8 +48,9 @@ function createDefaultModel() {
     job_class: '',
     exec_strategy: '',
     expression: null,
-    is_active: '',
+    is_active: true,
     remark: '',
+    once_time: null,
     start_date: null,
     end_date: null,
     create_datetime: null,
@@ -64,12 +66,10 @@ const execStrategyOptions = ref([
     value: "interval",
     label: "时间间隔(interval)"
   },
-
   {
     value: "cron",
     label: "Cron 表达式"
   },
-
   {
     value: "date",
     label: "指定日期时间(date)"
@@ -102,6 +102,9 @@ function handleInitModel() {
 
   if (props.operateType === 'edit' && props.rowData) {
     Object.assign(model, props.rowData);
+    if (props.rowData.exec_strategy === 'date') {
+      model.once_time = dayjs(props.rowData.expression);
+    }
   }
 
   if (props.operateType === 'add') {
@@ -119,13 +122,17 @@ async function handleSubmit() {
   await validate();
   // request
 
+  if (model.exec_strategy == 'date') {
+    model.expression = dayjs(model.once_time).format('YYYY-MM-DD HH:mm:ss');
+  }
+
   if (props.operateType === 'add') {
-    const { error } = await fetchAddUser(model);
+    const { error } = await fetchAddTask(model);
     if (!error) {
       window.$message?.success($t('common.addSuccess'));
     }
   } else if (props.operateType === 'edit') {
-    const { error } = await fetchUpdateUser(model);
+    const { error } = await fetchUpdateTask(model);
     if (!error) {
       window.$message?.success($t('common.updateSuccess'));
     }
@@ -137,7 +144,6 @@ async function handleSubmit() {
 
 watch(visible, () => {
   if (visible.value) {
-    // debugger
     handleInitModel();
     restoreValidation();
     getRoleOptions();
@@ -173,8 +179,9 @@ watch(visible, () => {
           <n-form-item-gi :span="24" v-if="model.exec_strategy === 'cron'" :label="$t('表达式')" path="expression">
             <NInput v-model:value="model.expression" :placeholder="$t('cron 表达式，六位或七位，分别表示秒、分钟、小时、天、月、星期几、年(可选)')" />
           </n-form-item-gi>
-          <n-form-item-gi :span="24" v-if="model.exec_strategy === 'date'" :label="$t('执行时间')" path="expression">
-            <NDatePicker v-model:value="model.expression" type="datetime" format="yyyy-MM-dd HH:mm:ss" />
+          <n-form-item-gi :span="24" v-if="model.exec_strategy === 'date'" :label="$t('执行时间')" path="once_time">
+            <NDatePicker v-model:formatted-value="model.once_time" value-format="yyyy.MM.dd HH:mm:ss" type="datetime"
+              format="yyyy-MM-dd HH:mm:ss" />
           </n-form-item-gi>
           <n-form-item-gi :span="12" v-if="model.exec_strategy !== 'date'" :label="$t('开始时间')" path="start_date">
             <NDatePicker v-model:value="model.start_date" type="datetime" format="yyyy-MM-dd HH:mm:ss" />
@@ -184,8 +191,8 @@ watch(visible, () => {
           </n-form-item-gi>
           <n-form-item-gi :span="12" :label="$t('任务状态')" path="is_active">
             <NRadioGroup v-model:value="model.is_active">
-              <NRadio value="true" :label="$t('正常')" />
-              <NRadio value="false" :label="$t('停用')" />
+              <NRadio :value="true" :label="$t('正常')" />
+              <NRadio :value="false" :label="$t('停用')" />
             </NRadioGroup>
           </n-form-item-gi>
 

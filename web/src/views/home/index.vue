@@ -86,7 +86,6 @@ const groupEquipments = (data: { equipmentList: Equipment[] }) => {
   }
 };
 
-
 async function refreshTree() {
   loading.value = true;
 
@@ -107,13 +106,6 @@ async function refreshTree() {
   loading.value = false;
 }
 
-function handleClick(equipid) {
-
-  // routerPushByKey('early-warning_monitor', { query: { a: '1' } })
-  // routerPushByKey('early-warning_monitor', { params: { a: '1' } })
-
-  // <NButton @click="routerPushByKey('early-warning_monitor', { query: { a: '1' } })">
-}
 
 onMounted(async () => {
   await refreshTree();

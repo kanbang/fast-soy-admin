@@ -12,8 +12,8 @@ class SchedulerTask(Model):
     exec_strategy = fields.CharField(max_length=255)
     expression = fields.CharField(max_length=255)
     remark = fields.CharField(max_length=255, null=True)
-    start_date = fields.DatetimeField()
-    end_date = fields.DatetimeField()
+    start_date = fields.DatetimeField(null=True)
+    end_date = fields.DatetimeField(null=True)
     is_active = fields.BooleanField(default=True)
 
     class Meta:
