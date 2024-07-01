@@ -21,6 +21,8 @@ async def copy_table_data(tb: str):
 
 async def main():
     await copy_table_data("menus")
+    await copy_table_data("roles")
+    await copy_table_data("users_roles")
     await copy_table_data("mfst")
     await copy_table_data("mfs")
     await copy_table_data("equipment")

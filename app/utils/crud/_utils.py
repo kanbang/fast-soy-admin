@@ -1,12 +1,23 @@
+from datetime import datetime
 from typing import Optional, Type, Any
 
 from fastapi import Depends, HTTPException
-from fastapi.responses import ORJSONResponse
+from fastapi.responses import JSONResponse, ORJSONResponse
+import orjson
 from pydantic import create_model
 from starlette import status
 
 from ._types import T, PAGINATION, PYDANTIC_SCHEMA
 
+class CustomORJSONResponse(JSONResponse):
+    def render(self, content: any) -> bytes:
+        # 自定义的序列化函数，用于将 datetime 转换为时间戳
+        def default(obj):
+            if isinstance(obj, datetime):
+                return int(obj.timestamp())
+            raise TypeError
+
+        return orjson.dumps(content, default=default, option=orjson.OPT_NON_STR_KEYS | orjson.OPT_SERIALIZE_NUMPY)
 
 class AttrDict(dict):  # type: ignore
     def __init__(self, *args, **kwargs) -> None:  # type: ignore

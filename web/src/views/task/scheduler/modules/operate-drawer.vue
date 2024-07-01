@@ -166,7 +166,7 @@ watch(visible, () => {
               <NRadio v-for="item in execStrategyOptions" :key="item.value" :value="item.value" :label="item.label" />
             </NRadioGroup>
           </n-form-item-gi>
-          <!-- <n-form-item-gi :span="24" v-if="model.exec_strategy === 'interval'" :label="$t('表达式')" path="expression">
+          <n-form-item-gi :span="24" v-if="model.exec_strategy === 'interval'" :label="$t('表达式')" path="expression">
             <NInput v-model:value="model.expression"
               :placeholder="$t('interval 表达式，五位，分别为：秒 分 时 天 周，例如：10 * * * * 表示每隔 10 秒执行一次任务。')" />
           </n-form-item-gi>
@@ -174,16 +174,13 @@ watch(visible, () => {
             <NInput v-model:value="model.expression" :placeholder="$t('cron 表达式，六位或七位，分别表示秒、分钟、小时、天、月、星期几、年(可选)')" />
           </n-form-item-gi>
           <n-form-item-gi :span="24" v-if="model.exec_strategy === 'date'" :label="$t('执行时间')" path="expression">
-            <NDatePicker v-model:value="model.expression" type="datetime" format="YYYY-MM-DD HH:mm:ss"
-              value-format="YYYY-MM-DD HH:mm:ss" />
-          </n-form-item-gi> -->
+            <NDatePicker v-model:value="model.expression" type="datetime" format="yyyy-MM-dd HH:mm:ss" />
+          </n-form-item-gi>
           <n-form-item-gi :span="12" v-if="model.exec_strategy !== 'date'" :label="$t('开始时间')" path="start_date">
-            <NDatePicker v-model:value="model.start_date" type="datetime" format="YYYY-MM-DD HH:mm:ss"
-              value-format="YYYY-MM-DD HH:mm:ss" />
+            <NDatePicker v-model:value="model.start_date" type="datetime" format="yyyy-MM-dd HH:mm:ss" />
           </n-form-item-gi>
           <n-form-item-gi :span="12" v-if="model.exec_strategy !== 'date'" :label="$t('结束时间')" path="end_date">
-            <NDatePicker v-model:value="model.end_date" type="datetime" format="YYYY-MM-DD HH:mm:ss"
-              value-format="YYYY-MM-DD HH:mm:ss" />
+            <NDatePicker v-model:value="model.end_date" type="datetime" format="yyyy-MM-dd HH:mm:ss" />
           </n-form-item-gi>
           <n-form-item-gi :span="12" :label="$t('任务状态')" path="is_active">
             <NRadioGroup v-model:value="model.is_active">

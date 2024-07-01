@@ -52,7 +52,7 @@ async def get_task_records(
         .order_by("-start_time")
     )
 
-    records = convert_to_pydantic(role_objs, SchedulerTaskRecordDTO)
+    records = convert_to_pydantic(role_objs, SchedulerTaskRecordDTO, mode='json')
     return resp_success(records, total=total)
 
 
@@ -79,7 +79,7 @@ async def get_tasks(
     total = await query.count()
     role_objs = await query.offset((page - 1) * page_size).limit(page_size)
 
-    return resp_success(convert_to_pydantic(role_objs, TaskSimpleOutDTO), total=total)
+    return resp_success(convert_to_pydantic(role_objs, TaskSimpleOutDTO, mode='json'), total=total)
 
     # data = {"records": [
     #     TaskSimpleOutDTO.model_validate(role_obj).model_dump() for role_obj in role_objs
@@ -93,7 +93,7 @@ async def get_tasks(
 async def post_tasks(request: Request, data: TaskDTO):
 
     task = await SchedulerTask.create(**data.model_dump(exclude_unset=True))
-    record = convert_to_pydantic(task, TaskSimpleOutDTO)
+    record = convert_to_pydantic(task, TaskSimpleOutDTO, mode='json')
 
     exec_strategy = data.exec_strategy
     job_params = {
@@ -122,7 +122,7 @@ async def put_tasks(request: Request, _id: int, data: TaskDTO):
     if not task:
         raise HTTPException(status_code=404, detail="任务不存在")
     await task.update_from_dict(data.model_dump(exclude_unset=True)).save()
-    record = convert_to_pydantic(task, TaskSimpleOutDTO)
+    record = convert_to_pydantic(task, TaskSimpleOutDTO, mode='json')
 
     scheduler = request.app.state.task
     ret = scheduler.remove_job(str(_id))
@@ -162,7 +162,7 @@ async def delete_task(request: Request, _id: int):
     scheduler = request.app.state.task
     ret = scheduler.remove_job(str(_id))
     if ret:
-        record = convert_to_pydantic(task, TaskSimpleOutDTO)
+        record = convert_to_pydantic(task, TaskSimpleOutDTO, mode='json')
         return resp_success(record, msg="任务删除成功")
     else:
         return resp_fail(msg="任务删除报错")
@@ -183,7 +183,7 @@ async def get_task(request: Request, _id: int):
     if not task:
         raise HTTPException(status_code=404, detail="任务不存在")
 
-    record = convert_to_pydantic(task, TaskSimpleOutDTO)
+    record = convert_to_pydantic(task, TaskSimpleOutDTO, mode='json')
     return resp_success(record)
 
 

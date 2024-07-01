@@ -3,6 +3,7 @@ from typing import (
     Any,
     Callable,
     List,
+    Literal,
     Tuple,
     Type,
     TypeVar,
@@ -145,24 +146,25 @@ def convert_to_pydantic(
     data: Union[dict, ModelType, List[ModelType]],
     pydantic_model: Type[PydanticType],
     relationships: bool = False,
+    mode: Literal['json', 'python'] | str = 'python',
 ) -> Union[PydanticType, List[PydanticType]]:
     if data is None:
         return None
     elif isinstance(data, dict):
-        return pydantic_model.model_validate(data).model_dump()
+        return pydantic_model.model_validate(data).model_dump(mode=mode)
     elif isinstance(data, list):
         return [
-            convert_to_pydantic(item, pydantic_model, relationships) for item in data
+            convert_to_pydantic(item, pydantic_model, relationships, mode) for item in data
         ]
     elif isinstance(data, Model):
         if relationships:
             return pydantic_model.model_validate(
                 model_to_dict_relation(data),
-            ).model_dump()
+            ).model_dump(mode=mode)
         else:
             return pydantic_model.model_validate(
                 model_to_dict_no_relation(data),
-            ).model_dump()
+            ).model_dump(mode=mode)
     else:
         raise ValueError("Invalid input data type")
 
